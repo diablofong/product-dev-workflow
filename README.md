@@ -14,11 +14,24 @@ Designed for: indie developers, product managers, and small teams who use Claude
 
 ## Features
 
-- 🌐 Bilingual support — Traditional Chinese & English
-- 🔀 Flexible entry points — start at any phase based on task size
-- 🤖 Model guidance — tells you when to use Opus vs Sonnet vs Haiku
+- 🎯 Slash command driven — `/pdw`, `/pdw-new`, `/pdw-bug`, and more
+- 🌐 Bilingual — replies in Chinese or English automatically based on what you write
+- 🔀 Flexible entry points — jump to any phase directly
+- 🤖 Model switch prompts — tells you when to switch Opus / Sonnet / Haiku and waits for confirmation before continuing
 - 📄 Auto document output — Product Brief, Roundtable Summary, PRD, Technical Spec, and more
-- 🐛 Quick Fix Track — separate flow for bug fixes and optimizations
+
+## Commands
+
+| Command | Action | Model |
+|---|---|---|
+| `/pdw` | Show command menu | — |
+| `/pdw-new` | New product → Phase 1 | 🔴 Opus |
+| `/pdw-version` | New version → Phase 1 | 🔴 Opus |
+| `/pdw-feature` | New feature → auto-detect phase | 🟡 depends |
+| `/pdw-roundtable` | Roundtable discussion → Phase 2 | 🟡 Sonnet |
+| `/pdw-plan` | Execution planning → Phase 3 | 🟢 Sonnet |
+| `/pdw-dev` | System development → Phase 4 | 🟢 Sonnet |
+| `/pdw-bug` | Bug fix / Optimization | 🟢 Sonnet |
 
 ## Workflow Overview
 
@@ -32,18 +45,16 @@ Phase 5 │ Next Version Planning                  🔴 Opus
 Quick Fix Track │ Bug Fix / Optimization         🟢 Sonnet
 ```
 
-You don't need to run all 5 phases every time. The skill determines the right entry point based on your task.
-
 ## When to Start at Each Phase
 
-| Scenario | Entry Phase |
-|---|---|
-| Brand new product | Phase 1 |
-| Major version (v2.0+) | Phase 1 |
-| Feature affecting architecture | Phase 1 or 2 |
-| Medium feature (cross-team) | Phase 2 |
-| Small feature | Phase 4 |
-| Bug fix / Optimization | Quick Fix Track |
+| Scenario | Command | Entry Phase |
+|---|---|---|
+| Brand new product | `/pdw-new` | Phase 1 |
+| Major version (v2.0+) | `/pdw-version` | Phase 1 |
+| New feature | `/pdw-feature` | Auto-detected |
+| Roundtable only | `/pdw-roundtable` | Phase 2 |
+| Ready to build | `/pdw-dev` | Phase 4 |
+| Bug fix / Optimization | `/pdw-bug` | Quick Fix |
 
 ## Model Guide
 
@@ -53,23 +64,57 @@ You don't need to run all 5 phases every time. The skill determines the right en
 | 🟡 Sonnet | Phase 2, 3, 4 — the main workhorse |
 | 🔵 Haiku | Boilerplate, renaming, simple lookups |
 
+The skill prompts you to switch models at the right moment and waits for your confirmation before continuing.
+
+## How to Switch Models
+
+**Claude.ai Chat**
+> Click the model name at the top of the chat → Select the model
+
+**Claude Code**
+```bash
+/model opus      # Switch to Opus
+/model sonnet    # Switch to Sonnet
+/model haiku     # Switch to Haiku
+/model opusplan  # Opus for planning, auto-switch to Sonnet for execution
+```
+
 ## How to Install
 
-1. Copy `SKILL.md` into your Claude skills folder
-2. Or paste the contents directly into a Claude Project as a custom instruction
-3. Start a new conversation and follow the initialization prompt
+**Claude.ai Chat**
+1. Download the `product-dev-workflow` folder
+2. Zip it (folder must be at the root of the ZIP)
+3. Go to Settings → Customize → Skills → Upload ZIP
+4. Enable Code Execution in Settings → Capabilities
+
+**Claude Code (Windows)**
+```
+Copy the folder to:
+C:\Users\<your-username>\.claude\skills\product-dev-workflow\
+```
+
+**Claude Code (Mac / Linux)**
+```bash
+cp -r product-dev-workflow ~/.claude/skills/
+```
 
 ## How to Use
 
-At the start of each session, Claude will ask:
-1. Your preferred language (Chinese / English)
-2. What you want to do (new product / new feature / bug fix / etc.)
+```bash
+/pdw              # Show command menu
+/pdw-new          # Start planning a new product
+/pdw-bug          # Fix a bug
+```
 
-Then follow the guided flow. Claude will auto-produce documents at the end of each phase and ask if you want to continue to the next.
+Claude replies in whichever language you write in — no language setup needed.
+
+## Real-World Example
+
+This workflow was used to plan and develop [iVault](https://github.com/diablofong/iVault) — a free iPhone photo backup tool for Windows (USB direct, no iCloud, open source).
 
 ## License
 
-[Apache License 2.0](./LICENSE)
+[MIT License](./LICENSE)
 
 ---
 
@@ -77,17 +122,30 @@ Then follow the guided flow. Claude will auto-produce documents at the end of ea
 
 ### 這是什麼？
 
-一個 Claude Skill（`SKILL.md`），引導 Claude 執行結構化、彈性的產品開發流程，從市場評估到系統開發全流程覆蓋。
+一個 Claude Skill（`SKILL.md`），透過斜線指令引導你完成完整的產品開發流程，從市場評估到系統開發全覆蓋。
 
 適合：獨立開發者、產品經理、小型團隊。
 
 ### 功能特色
 
-- 🌐 雙語支援 — 繁體中文 & 英文
-- 🔀 彈性入場點 — 根據任務大小從任意 Phase 開始
-- 🤖 Model 建議 — 自動提示何時用 Opus、Sonnet、Haiku
+- 🎯 斜線指令驅動 — `/pdw`、`/pdw-new`、`/pdw-bug` 等
+- 🌐 自動雙語 — 你用中文說話就回中文，用英文就回英文
+- 🔀 彈性入場點 — 直接跳到任意 Phase
+- 🤖 Model 切換提示 — 每個關鍵點提示切換 Opus / Sonnet / Haiku，並等待確認後再繼續
 - 📄 自動產出文件 — Product Brief、圓桌會議結論、PRD、技術規格書等
-- 🐛 快速修復通道 — Bug 修復與優化的獨立流程
+
+### 指令列表
+
+| 指令 | 功能 | Model |
+|---|---|---|
+| `/pdw` | 顯示指令選單 | — |
+| `/pdw-new` | 新產品 → Phase 1 | 🔴 Opus |
+| `/pdw-version` | 新版本 → Phase 1 | 🔴 Opus |
+| `/pdw-feature` | 新功能 → 自動判斷入場點 | 🟡 依情況 |
+| `/pdw-roundtable` | 圓桌討論 → Phase 2 | 🟡 Sonnet |
+| `/pdw-plan` | 建立執行計畫 → Phase 3 | 🟢 Sonnet |
+| `/pdw-dev` | 系統開發 → Phase 4 | 🟢 Sonnet |
+| `/pdw-bug` | Bug 修復 / 優化 | 🟢 Sonnet |
 
 ### 流程概覽
 
@@ -101,23 +159,50 @@ Phase 5 │ 下一版規劃              🔴 Opus
 快速通道 │ Bug 修復 / 優化        🟢 Sonnet
 ```
 
-### 入場點選擇
+### 如何切換 Model
 
-| 情境 | 入場 Phase |
-|---|---|
-| 全新產品 | Phase 1 |
-| 大版本（v2.0+）| Phase 1 |
-| 影響架構的大功能 | Phase 1 或 2 |
-| 中型功能（跨部門）| Phase 2 |
-| 小功能 | Phase 4 |
-| Bug 修復 / 優化 | 快速通道 |
+**Claude.ai Chat**
+> 點對話框上方的 Model 名稱 → 選擇對應 Model
+
+**Claude Code**
+```bash
+/model opus      # 切換到 Opus
+/model sonnet    # 切換到 Sonnet
+/model haiku     # 切換到 Haiku
+/model opusplan  # Opus 規劃 + 自動切回 Sonnet 執行
+```
 
 ### 安裝方式
 
-1. 將 `SKILL.md` 複製到你的 Claude skills 資料夾
-2. 或直接貼到 Claude Project 的自訂指令中
-3. 開啟新對話，跟著初始化提示操作即可
+**Claude.ai Chat**
+1. 下載 `product-dev-workflow` 資料夾
+2. 壓縮成 ZIP（資料夾要在 ZIP 根目錄）
+3. 前往 Settings → Customize → Skills → 上傳 ZIP
+4. 確認 Settings → Capabilities → Code Execution 已開啟
+
+**Claude Code（Windows）**
+```
+複製資料夾到：
+C:\Users\<你的使用者名稱>\.claude\skills\product-dev-workflow\
+```
+
+**Claude Code（Mac / Linux）**
+```bash
+cp -r product-dev-workflow ~/.claude/skills/
+```
+
+### 使用方式
+
+```bash
+/pdw              # 顯示指令選單
+/pdw-new          # 開始規劃新產品
+/pdw-bug          # 修復 Bug
+```
+
+### 實際應用案例
+
+此流程用於規劃與開發 [iVault](https://github.com/diablofong/iVault) — 免費的 iPhone 照片備份工具（Windows、USB 直連、無需 iCloud、開源）。
 
 ### 授權
 
-[Apache License 2.0](./LICENSE)
+[MIT License](./LICENSE)
