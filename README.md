@@ -1,6 +1,6 @@
 # product-dev-workflow
 
-> A flexible Claude Skill for the full product & software development lifecycle.
+> A streamlined Claude Skill for the full product & software development lifecycle.
 
 [繁體中文](#繁體中文) | **English**
 
@@ -8,78 +8,95 @@
 
 ## What is this?
 
-A Claude Skill (`SKILL.md`) that guides Claude through a structured, flexible product development workflow — from market evaluation to system development.
+A Claude Skill (`SKILL.md`) that guides Claude through a structured, developer-friendly product development workflow — from market evaluation to system development.
 
 Designed for: indie developers, product managers, and small teams who use Claude as a development partner.
 
 ## Features
 
-- 🎯 Slash command driven — `/pdw`, `/pdw-new`, `/pdw-bug`, and more
-- 🌐 Bilingual — replies in Chinese or English automatically based on what you write
-- 🔀 Flexible entry points — jump to any phase directly
-- 🤖 Model switch prompts — tells you when to switch Opus / Sonnet / Haiku and waits for confirmation before continuing
-- 📄 Auto document output — Product Brief, Roundtable Summary, PRD, Technical Spec, and more
+- 🎯 Simple commands — just 7 to remember
+- 🌐 Bilingual — replies in Chinese or English automatically
+- 🤖 Auto-detects task type — just describe what you want
+- 👥 Dynamic roundtable — 31 roles, auto-selected by topic
+- 🔀 Model switch prompts — Opus / Sonnet / Haiku at the right moment
+- 📝 Built-in records management — CURRENT / DONE / PLAN / archive
+- 🧹 Context hygiene — keeps Claude sessions clean and efficient
 
 ## Commands
 
-| Command | Action | Model |
-|---|---|---|
-| `/pdw` | Show command menu | — |
-| `/pdw-new` | New product → Phase 1 | 🔴 Opus |
-| `/pdw-version` | New version → Phase 1 | 🔴 Opus |
-| `/pdw-feature` | New feature → auto-detect phase | 🟡 depends |
-| `/pdw-roundtable` | Roundtable discussion → Phase 2 | 🟡 Sonnet |
-| `/pdw-plan` | Execution planning → Phase 3 | 🟢 Sonnet |
-| `/pdw-dev` | System development → Phase 4 | 🟢 Sonnet |
-| `/pdw-bug` | Bug fix / Optimization | 🟢 Sonnet |
-| `/pdw-haiku` | Batch mechanical tasks | 🔵 Haiku |
+| Command | When to Use |
+|---|---|
+| `/pdw [description]` | Just describe what you want — Skill figures out the rest |
+| `/pdw` | Not sure where to start — show the menu |
+| `/pdw roundtable [topic]` | Standalone discussion, market analysis, no dev required |
+| `/pdw dev [task]` | Start a development task |
+| `/pdw bug [description]` | Fix a bug or hotfix |
+| `/pdw batch [description]` | Batch repetitive tasks — rename, update, annotate, replace |
+| `/pdw done [task]` | Mark task complete + update records |
+| `/pdw status` | Show current progress |
+| `/pdw wrap` | Archive current version + retrospective |
 
 ## Workflow Overview
 
 ```
-Phase 1 │ Product Planning & Market Evaluation   🔴 Opus
-Phase 2 │ Roundtable Discussion (multi-role)     🟡 Sonnet
-Phase 3 │ Execution Planning (per department)    🟢 Sonnet
-Phase 4 │ System Development                     🟢 Sonnet
-Phase 5 │ Next Version Planning                  🔴 Opus
+/pdw [need]  →  Auto-detect
+                    ↓
+             New product/version  →  Phase 1  🔴 Opus
+             Needs discussion?    →  Roundtable  🟡 Sonnet
+             Ready to plan        →  Phase 3  🟢 Sonnet
+             Ready to build       →  Phase 4  🟢 Sonnet
+             Version complete     →  /pdw wrap  🔴 Opus
 
-Quick Fix Track │ Bug Fix / Optimization         🟢 Sonnet
-Haiku Track     │ Batch Mechanical Tasks         🔵 Haiku
+/pdw roundtable  →  Standalone discussion (independent of dev)
+/pdw dev         →  Development task
+/pdw bug         →  Bug fix / hotfix
+/pdw batch       →  Batch repetitive tasks (Haiku handled automatically)
 ```
-
-## When to Start at Each Phase
-
-| Scenario | Command | Entry Phase |
-|---|---|---|
-| Brand new product | `/pdw-new` | Phase 1 |
-| Major version (v2.0+) | `/pdw-version` | Phase 1 |
-| New feature | `/pdw-feature` | Auto-detected |
-| Roundtable only | `/pdw-roundtable` | Phase 2 |
-| Ready to build | `/pdw-dev` | Phase 4 |
-| Bug fix / Optimization | `/pdw-bug` | Quick Fix |
-| Batch mechanical tasks | `/pdw-haiku` | Haiku Track |
 
 ## Model Guide
 
 | Model | When to Use |
 |---|---|
-| 🔴 Opus | Phase 1 & 5, hard decisions, architecture, mysterious bugs |
-| 🟡 Sonnet | Phase 2, 3, 4 — the main workhorse |
-| 🔵 Haiku | `/pdw-haiku` — batch mechanical tasks, no logic needed |
+| 🔴 Opus | New product, major version, retrospective, hard bugs, architecture |
+| 🟡 Sonnet | Roundtable, execution planning, development (main workhorse) |
+| 🔵 Haiku | `/pdw batch` — handled automatically, no need to know the model name |
 
-The skill prompts you to switch models at the right moment and waits for your confirmation before continuing.
+The skill prompts you to switch at the right moment and waits for confirmation.
 
 ## How to Switch Models
 
 **Claude.ai Chat**
-> Click the model name at the top of the chat → Select the model
+> Click the model name at the top → Select the model
 
 **Claude Code**
 ```bash
 /model opus      # Switch to Opus
 /model sonnet    # Switch to Sonnet
 /model haiku     # Switch to Haiku
-/model opusplan  # Opus for planning, auto-switch to Sonnet for execution
+/model opusplan  # Opus for planning, auto-switch to Sonnet
+```
+
+## Records Structure
+
+All records stored locally — never committed to git.
+
+```
+project/
+├── src/                  ← your code
+├── .gitignore            ← add .claude/ here
+└── .claude/
+    ├── skills/           ← skill files
+    └── records/
+        ├── CURRENT.md    ← active tasks (only this in context)
+        ├── DONE.md       ← completed (never share with Claude)
+        ├── PLAN.md       ← full plan (reference only)
+        ├── NOTES.md      ← lessons learned, gotchas
+        └── archive/      ← old versions (never in context)
+```
+
+Add to `.gitignore`:
+```
+.claude/
 ```
 
 ## How to Install
@@ -92,8 +109,8 @@ The skill prompts you to switch models at the right moment and waits for your co
 
 **Claude Code (Windows)**
 ```
-Copy the folder to:
-C:\Users\<your-username>\.claude\skills\product-dev-workflow\
+Copy folder to:
+C:\Users\<username>\.claude\skills\product-dev-workflow\
 ```
 
 **Claude Code (Mac / Linux)**
@@ -104,12 +121,24 @@ cp -r product-dev-workflow ~/.claude/skills/
 ## How to Use
 
 ```bash
-/pdw              # Show command menu
-/pdw-new          # Start planning a new product
-/pdw-bug          # Fix a bug
+# Not sure where to start
+/pdw
+
+# Describe what you want — Skill figures out the rest
+/pdw I want to add a paid subscription feature
+
+# Standalone discussion
+/pdw roundtable analyze the backup software market in Taiwan
+
+# Daily development
+/pdw dev          # work on next task
+/pdw bug          # fix a bug
+/pdw done         # mark complete
+/pdw status       # check progress
+/pdw wrap         # archive this version
 ```
 
-Claude replies in whichever language you write in — no language setup needed.
+Claude replies in whichever language you write in — no setup needed.
 
 ## License
 
@@ -121,44 +150,58 @@ Claude replies in whichever language you write in — no language setup needed.
 
 ### 這是什麼？
 
-一個 Claude Skill（`SKILL.md`），透過斜線指令引導你完成完整的產品開發流程，從市場評估到系統開發全覆蓋。
+一個 Claude Skill（`SKILL.md`），用簡單的斜線指令引導你完成完整的產品開發流程。
 
 適合：獨立開發者、產品經理、小型團隊。
 
 ### 功能特色
 
-- 🎯 斜線指令驅動 — `/pdw`、`/pdw-new`、`/pdw-bug` 等
-- 🌐 自動雙語 — 你用中文說話就回中文，用英文就回英文
-- 🔀 彈性入場點 — 直接跳到任意 Phase
-- 🤖 Model 切換提示 — 每個關鍵點提示切換 Opus / Sonnet / Haiku，並等待確認後再繼續
-- 📄 自動產出文件 — Product Brief、圓桌會議結論、PRD、技術規格書等
+- 🎯 只需記住 7 個指令
+- 🌐 自動雙語 — 你用什麼語言，Claude 就回什麼語言
+- 🤖 自動判斷任務類型 — 描述需求，Skill 幫你決定
+- 👥 動態圓桌 — 31 個角色，根據主題自動選出與會者
+- 🔀 Model 切換提示 — 對的時機提示 Opus / Sonnet / Haiku
+- 📝 內建紀錄管理 — CURRENT / DONE / PLAN / archive
+- 🧹 Context 整理 — 保持 Claude 對話乾淨有效率
 
 ### 指令列表
 
-| 指令 | 功能 | Model |
-|---|---|---|
-| `/pdw` | 顯示指令選單 | — |
-| `/pdw-new` | 新產品 → Phase 1 | 🔴 Opus |
-| `/pdw-version` | 新版本 → Phase 1 | 🔴 Opus |
-| `/pdw-feature` | 新功能 → 自動判斷入場點 | 🟡 依情況 |
-| `/pdw-roundtable` | 圓桌討論 → Phase 2 | 🟡 Sonnet |
-| `/pdw-plan` | 建立執行計畫 → Phase 3 | 🟢 Sonnet |
-| `/pdw-dev` | 系統開發 → Phase 4 | 🟢 Sonnet |
-| `/pdw-bug` | Bug 修復 / 優化 | 🟢 Sonnet |
-| `/pdw-haiku` | 批次機械性任務 | 🔵 Haiku |
+| 指令 | 使用時機 |
+|---|---|
+| `/pdw [描述]` | 描述你的需求，Skill 自動判斷怎麼處理 |
+| `/pdw` | 不知道從哪開始，顯示選單 |
+| `/pdw roundtable [主題]` | 獨立討論、市場分析，不需要開發 |
+| `/pdw dev [任務]` | 開始開發任務 |
+| `/pdw bug [描述]` | 修 bug 或緊急修復 |
+| `/pdw batch [描述]` | 批次重複性任務 — 改名、更新、加註解、替換 |
+| `/pdw done [任務]` | 標記完成 + 更新紀錄 |
+| `/pdw status` | 查看當前進度 |
+| `/pdw wrap` | 封存當前版本 + 回顧 |
 
 ### 流程概覽
 
 ```
-Phase 1 │ 產品規劃 & 市場評估     🔴 Opus
-Phase 2 │ 圓桌會議（多角色）      🟡 Sonnet
-Phase 3 │ 各部門建立執行計畫      🟢 Sonnet
-Phase 4 │ 系統開發                🟢 Sonnet
-Phase 5 │ 下一版規劃              🔴 Opus
+/pdw [需求]  →  自動判斷
+                    ↓
+             新產品/版本  →  Phase 1  🔴 Opus
+             需要討論？   →  圓桌     🟡 Sonnet
+             準備規劃     →  Phase 3  🟢 Sonnet
+             準備開發     →  Phase 4  🟢 Sonnet
+             版本完成     →  /pdw wrap  🔴 Opus
 
-快速通道 │ Bug 修復 / 優化        🟢 Sonnet
-批次通道 │ 機械性批次任務         🔵 Haiku
+/pdw roundtable  →  獨立圓桌討論（不綁開發）
+/pdw dev         →  開發任務
+/pdw bug         →  修 bug / 緊急修復
+/pdw batch       →  批次重複性任務（自動使用最省的 Model）
 ```
+
+### Model 建議
+
+| Model | 使用時機 |
+|---|---|
+| 🔴 Opus | 新產品、大版本、回顧、困難 bug、架構決策 |
+| 🟡 Sonnet | 圓桌、執行計畫、開發（主力）|
+| 🔵 Haiku | `/pdw batch` 自動使用，開發者不需要知道 Model 名稱 |
 
 ### 如何切換 Model
 
@@ -170,7 +213,30 @@ Phase 5 │ 下一版規劃              🔴 Opus
 /model opus      # 切換到 Opus
 /model sonnet    # 切換到 Sonnet
 /model haiku     # 切換到 Haiku
-/model opusplan  # Opus 規劃 + 自動切回 Sonnet 執行
+/model opusplan  # Opus 規劃 + 自動切回 Sonnet
+```
+
+### 紀錄檔案結構
+
+所有紀錄存在本地，不上 git。
+
+```
+專案資料夾/
+├── src/                  ← 你的程式碼
+├── .gitignore            ← 加入 .claude/
+└── .claude/
+    ├── skills/           ← Skill 檔案
+    └── records/
+        ├── CURRENT.md    ← 當前任務（唯一需要給 Claude 的）
+        ├── DONE.md       ← 已完成（不要給 Claude）
+        ├── PLAN.md       ← 完整計畫（參考用）
+        ├── NOTES.md      ← 踩坑紀錄、決策說明
+        └── archive/      ← 封存舊版本（永遠不帶入 context）
+```
+
+`.gitignore` 加上：
+```
+.claude/
 ```
 
 ### 安裝方式
@@ -195,9 +261,24 @@ cp -r product-dev-workflow ~/.claude/skills/
 ### 使用方式
 
 ```bash
-/pdw              # 顯示指令選單
-/pdw-new          # 開始規劃新產品
-/pdw-bug          # 修復 Bug
+# 不知道從哪開始
+/pdw
+
+# 描述需求，Skill 自動判斷
+/pdw 我想加一個付費訂閱功能
+
+# 獨立圓桌討論
+/pdw roundtable 分析台灣備份軟體市場
+
+# 日常開發
+/pdw dev          # 開始開發下一個任務
+/pdw bug          # 修 bug
+/pdw done         # 標記完成
+/pdw status       # 查看進度
+/pdw wrap         # 封存這個版本
+
+# 批次重複性任務
+/pdw batch 把這些函式名稱改成 camelCase：[清單]
 ```
 
 Claude 會依照你輸入的語言自動回應，不需要額外設定。
