@@ -108,10 +108,6 @@ cp -r product-dev-workflow ~/.claude/skills/
 
 Claude replies in whichever language you write in — no language setup needed.
 
-## Real-World Example
-
-This workflow was used to plan and develop [iVault](https://github.com/diablofong/iVault) — a free iPhone photo backup tool for Windows (USB direct, no iCloud, open source).
-
 ## License
 
 [MIT License](./LICENSE)
@@ -198,10 +194,7 @@ cp -r product-dev-workflow ~/.claude/skills/
 /pdw-new          # 開始規劃新產品
 /pdw-bug          # 修復 Bug
 ```
-
-### 實際應用案例
-
-此流程用於規劃與開發 [iVault](https://github.com/diablofong/iVault) — 免費的 iPhone 照片備份工具（Windows、USB 直連、無需 iCloud、開源）。
+Claude 會依照你輸入的語言自動回應，不需要額外設定。
 
 ### 授權
 
