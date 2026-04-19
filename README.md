@@ -67,10 +67,6 @@ At the start of each session, Claude will ask:
 
 Then follow the guided flow. Claude will auto-produce documents at the end of each phase and ask if you want to continue to the next.
 
-## Real-World Example
-
-This workflow was used to plan and develop [iVault](https://github.com/diablofong/iVault) — a free iPhone photo backup tool for Windows (USB direct, no iCloud, open source).
-
 ## License
 
 [Apache License 2.0](./LICENSE)
@@ -121,10 +117,6 @@ Phase 5 │ 下一版規劃              🔴 Opus
 1. 將 `SKILL.md` 複製到你的 Claude skills 資料夾
 2. 或直接貼到 Claude Project 的自訂指令中
 3. 開啟新對話，跟著初始化提示操作即可
-
-### 實際應用案例
-
-此流程用於規劃與開發 [iVault](https://github.com/diablofong/iVault) — 一個免費的 iPhone 照片備份工具（Windows、USB 直連、無需 iCloud、開源）。
 
 ### 授權
 
