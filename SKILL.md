@@ -1,6 +1,6 @@
 ---
 name: product-dev-workflow
-description: A flexible product and software development workflow skill. Activated ONLY via slash commands: /pdw, /pdw-new, /pdw-version, /pdw-feature, /pdw-roundtable, /pdw-plan, /pdw-dev, /pdw-bug. Do NOT auto-trigger from conversation keywords, file contents, or any other context. Only load this skill when the user explicitly types one of the above slash commands.
+description: "A flexible product and software development workflow skill. Activated ONLY via slash commands (/pdw, /pdw-new, /pdw-version, /pdw-feature, /pdw-roundtable, /pdw-plan, /pdw-dev, /pdw-bug). Do NOT auto-trigger from conversation keywords, file contents, or any other context. Only load this skill when the user explicitly types one of the above slash commands."
 ---
 
 # Product Development Workflow Skill
@@ -25,6 +25,7 @@ Use these commands to jump directly to any phase:
 | `/pdw-plan` | Execution planning → Phase 3 | 🟢 Sonnet |
 | `/pdw-dev` | System development → Phase 4 | 🟢 Sonnet |
 | `/pdw-bug` | Bug fix / Optimization → Quick Fix | 🟢 Sonnet |
+| `/pdw-haiku` | Batch mechanical tasks | 🔵 Haiku |
 
 ---
 
@@ -35,13 +36,14 @@ When `/pdw` is called with no arguments, display:
 ```
 📋 Product Dev Workflow — Command Menu
 
-  /pdw-new          New product        → Phase 1  🔴 Opus
-  /pdw-version      New version        → Phase 1  🔴 Opus
-  /pdw-feature      New feature        → Auto      🟡
-  /pdw-roundtable   Roundtable         → Phase 2  🟡 Sonnet
-  /pdw-plan         Execution plan     → Phase 3  🟢 Sonnet
-  /pdw-dev          Development        → Phase 4  🟢 Sonnet
-  /pdw-bug          Bug fix / Optimize → Quick Fix 🟢 Sonnet
+  /pdw-new          New product        → Phase 1   🔴 Opus
+  /pdw-version      New version        → Phase 1   🔴 Opus
+  /pdw-feature      New feature        → Auto       🟡
+  /pdw-roundtable   Roundtable         → Phase 2   🟡 Sonnet
+  /pdw-plan         Execution plan     → Phase 3   🟢 Sonnet
+  /pdw-dev          Development        → Phase 4   🟢 Sonnet
+  /pdw-bug          Bug fix / Optimize → Quick Fix  🟢 Sonnet
+  /pdw-haiku        Batch tasks        → Haiku      🔵 Haiku
 
 Language: reply in the same language the user writes in.
 ```
@@ -93,13 +95,7 @@ Please switch your model now:
 - **Claude.ai Chat** → Click the model name at the top of the chat → Select Opus
 - **Claude Code** → Type `/model opus` in the terminal
 
-Type **「繼續」or「continue」** when ready.
-
----
-
-Do not proceed until the user confirms.
-
-### Work Items
+Type **"continue"** when ready.
 - Define core pain point and user problem
 - Identify target users
 - Competitive analysis (existing alternatives, pricing, gaps)
@@ -143,7 +139,7 @@ Please switch your model now:
 - **Claude.ai Chat** → Click the model name → Select Sonnet
 - **Claude Code** → Type `/model sonnet` in the terminal
 
-Type **「繼續」or「continue」** when ready.
+Type **"continue"** when ready.
 
 ---
 
@@ -246,7 +242,7 @@ Risks              :
 - **Claude.ai Chat** → Click the model name → Select Opus
 - **Claude Code** → Type `/model opus` in the terminal
 
-Type **「繼續」or「continue」** when ready, or **「略過」/「skip」** to stay on Sonnet.
+Type **"continue"** when ready, or **"skip"** to stay on Sonnet.
 
 ---
 
@@ -267,7 +263,7 @@ Please switch your model now:
 - **Claude.ai Chat** → Click the model name → Select Opus
 - **Claude Code** → Type `/model opus` in the terminal
 
-Type **「繼續」or「continue」** when ready.
+Type **"continue"** when ready.
 
 ---
 
@@ -300,12 +296,102 @@ Return to Phase 1 with the current product as context. Carry forward:
 
 ---
 
+## /pdw-haiku — Batch Mechanical Tasks
+**Model: 🔵 Haiku**
+**Trigger: /pdw-haiku [task description] [list or details]**
+
+### Suitable Tasks (mechanical, no logic needed)
+- Execute a method against a list of items
+- Batch rename (variables, functions, files)
+- Batch add comments / annotations
+- Batch format or reformat code
+- Batch string replacement
+- Generate boilerplate from a fixed pattern
+- Any "give me a list, run the same action" task
+
+### Usage Format
+```
+/pdw-haiku [task description] [list or details]
+```
+
+### Examples
+```
+/pdw-haiku call updateStatus() on this list: id:001→active, id:002→inactive
+/pdw-haiku add error handling log to these functions: [list]
+/pdw-haiku rename these variables to camelCase: [list]
+/pdw-haiku call sendNotification() for each id in this list: [list]
+```
+
+### Auto-check Before Executing
+After receiving the task, evaluate whether it is suitable for Haiku:
+
+✅ Proceed with Haiku:
+- Same action repeated across items
+- No need to interpret the meaning of each item
+- Pure mechanical operation
+
+❌ Switch to Sonnet and notify user:
+- Each item requires individual judgment
+- Involves business logic or rules
+- Requires understanding of context
+
+### ⚠️ Model Switch Prompt
+
+---
+🔵 **This task is suitable for Haiku**
+
+Please switch your model now:
+- **Claude Code** → `/model haiku`
+- **Claude.ai Chat** → Click the model name → Select Haiku
+
+Type **"continue"** when ready.
+
+---
+
+Do not proceed until the user confirms.
+
+### Execution & Report
+After execution, report results in the clearest format for the task type. Examples:
+
+```
+Batch method execution:
+✅ sendNotification(001) → success
+✅ sendNotification(002) → success
+❌ sendNotification(003) → failed (reason)
+
+Batch rename:
+✅ getUserInfo() → fetchUserProfile() (3 files)
+✅ setData() → updateData() (1 file)
+
+Batch add comments:
+✅ calculateTax() → comment added
+✅ formatDate() → comment added
+```
+
+Always end with a summary:
+```
+Total: X items — Success: X, Failed: X
+Failed reason: [if any]
+```
+
+After completion, prompt the user to switch back:
+
+---
+🟢 **Batch complete — switch back to Sonnet**
+
+- **Claude Code** → `/model sonnet`
+- **Claude.ai Chat** → Click the model name → Select Sonnet
+
+---
+
+---
+
 ## Model Quick Reference
 
 ```
 🔴 Opus    → Phase 1, Phase 5, hard bugs, architecture decisions
 🟡 Sonnet  → Phase 2, Phase 3, Phase 4 (main workhorse)
-🔵 Haiku   → Boilerplate, renaming, log lines, simple lookups
+🔵 Haiku   → /pdw-haiku, batch mechanical tasks, no logic needed
 ```
 
 **Rule of thumb:**
@@ -338,6 +424,7 @@ You do not need to run all 5 phases for every task. Match the depth to the scope
 /pdw-plan          # Execution planning
 /pdw-dev           # System development
 /pdw-bug           # Bug fix or optimization
+/pdw-haiku         # Batch mechanical tasks (no logic needed)
 ```
 
 **Language:** Claude replies in the same language you write in — Chinese or English, no setup needed.
