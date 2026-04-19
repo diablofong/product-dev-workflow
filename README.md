@@ -32,6 +32,7 @@ Designed for: indie developers, product managers, and small teams who use Claude
 | `/pdw-plan` | Execution planning → Phase 3 | 🟢 Sonnet |
 | `/pdw-dev` | System development → Phase 4 | 🟢 Sonnet |
 | `/pdw-bug` | Bug fix / Optimization | 🟢 Sonnet |
+| `/pdw-haiku` | Batch mechanical tasks | 🔵 Haiku |
 
 ## Workflow Overview
 
@@ -43,6 +44,7 @@ Phase 4 │ System Development                     🟢 Sonnet
 Phase 5 │ Next Version Planning                  🔴 Opus
 
 Quick Fix Track │ Bug Fix / Optimization         🟢 Sonnet
+Haiku Track     │ Batch Mechanical Tasks         🔵 Haiku
 ```
 
 ## When to Start at Each Phase
@@ -55,6 +57,7 @@ Quick Fix Track │ Bug Fix / Optimization         🟢 Sonnet
 | Roundtable only | `/pdw-roundtable` | Phase 2 |
 | Ready to build | `/pdw-dev` | Phase 4 |
 | Bug fix / Optimization | `/pdw-bug` | Quick Fix |
+| Batch mechanical tasks | `/pdw-haiku` | Haiku Track |
 
 ## Model Guide
 
@@ -62,7 +65,7 @@ Quick Fix Track │ Bug Fix / Optimization         🟢 Sonnet
 |---|---|
 | 🔴 Opus | Phase 1 & 5, hard decisions, architecture, mysterious bugs |
 | 🟡 Sonnet | Phase 2, 3, 4 — the main workhorse |
-| 🔵 Haiku | Boilerplate, renaming, simple lookups |
+| 🔵 Haiku | `/pdw-haiku` — batch mechanical tasks, no logic needed |
 
 The skill prompts you to switch models at the right moment and waits for your confirmation before continuing.
 
@@ -142,6 +145,7 @@ Claude replies in whichever language you write in — no language setup needed.
 | `/pdw-plan` | 建立執行計畫 → Phase 3 | 🟢 Sonnet |
 | `/pdw-dev` | 系統開發 → Phase 4 | 🟢 Sonnet |
 | `/pdw-bug` | Bug 修復 / 優化 | 🟢 Sonnet |
+| `/pdw-haiku` | 批次機械性任務 | 🔵 Haiku |
 
 ### 流程概覽
 
@@ -153,6 +157,7 @@ Phase 4 │ 系統開發                🟢 Sonnet
 Phase 5 │ 下一版規劃              🔴 Opus
 
 快速通道 │ Bug 修復 / 優化        🟢 Sonnet
+批次通道 │ 機械性批次任務         🔵 Haiku
 ```
 
 ### 如何切換 Model
@@ -194,6 +199,7 @@ cp -r product-dev-workflow ~/.claude/skills/
 /pdw-new          # 開始規劃新產品
 /pdw-bug          # 修復 Bug
 ```
+
 Claude 會依照你輸入的語言自動回應，不需要額外設定。
 
 ### 授權
