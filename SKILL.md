@@ -1,6 +1,6 @@
 ---
 name: product-dev-workflow
-description: A flexible product and software development workflow skill covering the full lifecycle — from market evaluation and roundtable discussion to execution planning and system development. Activated via slash commands (/pdw, /pdw-new, /pdw-version, /pdw-feature, /pdw-roundtable, /pdw-plan, /pdw-dev, /pdw-bug) or when the user mentions new product, new version, new feature, roundtable, execution plan, start development, bug fix, or optimization. Supports bilingual output (Traditional Chinese / English).
+description: A flexible product and software development workflow skill. Activated ONLY via slash commands: /pdw, /pdw-new, /pdw-version, /pdw-feature, /pdw-roundtable, /pdw-plan, /pdw-dev, /pdw-bug. Do NOT auto-trigger from conversation keywords, file contents, or any other context. Only load this skill when the user explicitly types one of the above slash commands.
 ---
 
 # Product Development Workflow Skill
