@@ -1,6 +1,6 @@
 ---
 name: product-dev-workflow
-description: A flexible product and software development workflow skill covering the full lifecycle — from market evaluation and roundtable discussion to execution planning and system development. Use this skill whenever the user mentions: starting a new product, planning a new version, adding a feature, conducting a roundtable discussion, building an execution plan, or starting system development. Also use when the user says things like "I want to develop", "let's plan", "new feature", "new product", "roundtable", or "execution plan". Supports bilingual output (Traditional Chinese / English). Automatically determines the entry phase based on task size and type.
+description: A flexible product and software development workflow skill covering the full lifecycle — from market evaluation and roundtable discussion to execution planning and system development. Activated via slash commands (/pdw, /pdw-new, /pdw-version, /pdw-feature, /pdw-roundtable, /pdw-plan, /pdw-dev, /pdw-bug) or when the user mentions new product, new version, new feature, roundtable, execution plan, start development, bug fix, or optimization. Supports bilingual output (Traditional Chinese / English).
 ---
 
 # Product Development Workflow Skill
@@ -11,24 +11,42 @@ Language: Determined at session start (Traditional Chinese or English)
 
 ---
 
+## Slash Commands
+
+Use these commands to jump directly to any phase:
+
+| Command | Action | Model |
+|---|---|---|
+| `/pdw` | Show this menu | — |
+| `/pdw-new` | New product → Phase 1 | 🔴 Opus |
+| `/pdw-version` | New version → Phase 1 | 🔴 Opus |
+| `/pdw-feature` | New feature → auto-detect phase | 🟡 depends |
+| `/pdw-roundtable` | Roundtable discussion → Phase 2 | 🟡 Sonnet |
+| `/pdw-plan` | Execution planning → Phase 3 | 🟢 Sonnet |
+| `/pdw-dev` | System development → Phase 4 | 🟢 Sonnet |
+| `/pdw-bug` | Bug fix / Optimization → Quick Fix | 🟢 Sonnet |
+
+---
+
 ## Step 0 — Session Initialization
 
-At the start of every session, ask:
+When `/pdw` is called with no arguments, display:
 
-> 🌐 **Language / 語言？**
-> [1] 繁體中文
-> [2] English
->
-> 📋 **What would you like to do? / 你想做什麼？**
-> [A] 新產品 / New Product → Phase 1
-> [B] 新版本 / New Version → Phase 1
-> [C] 大功能 / Major Feature → Phase 1 or 2
-> [D] 新功能 / New Feature → Phase 4
-> [E] 圓桌討論 / Roundtable → Phase 2
-> [F] Bug 修復 / Bug Fix → Quick Fix Track
-> [G] 優化 / Optimization → Quick Fix Track
+```
+📋 Product Dev Workflow — Command Menu
 
-Once language and entry point are selected, proceed accordingly. All subsequent output must be in the selected language.
+  /pdw-new          New product        → Phase 1  🔴 Opus
+  /pdw-version      New version        → Phase 1  🔴 Opus
+  /pdw-feature      New feature        → Auto      🟡
+  /pdw-roundtable   Roundtable         → Phase 2  🟡 Sonnet
+  /pdw-plan         Execution plan     → Phase 3  🟢 Sonnet
+  /pdw-dev          Development        → Phase 4  🟢 Sonnet
+  /pdw-bug          Bug fix / Optimize → Quick Fix 🟢 Sonnet
+
+Language: reply in the same language the user writes in.
+```
+
+When a specific command is called, skip the menu and go directly to the correct phase. Ask for the product/task description if not already provided.
 
 ---
 
@@ -64,6 +82,23 @@ Q3: Is this a straightforward development task?
 **Model: 🔴 Opus**
 **Trigger: New product / New major version / Large feature affecting direction**
 
+### ⚠️ Before Starting Phase 1 — Switch Model
+
+Display this message and WAIT for user confirmation before proceeding:
+
+---
+🔴 **Phase 1 requires Opus**
+
+Please switch your model now:
+- **Claude.ai Chat** → Click the model name at the top of the chat → Select Opus
+- **Claude Code** → Type `/model opus` in the terminal
+
+Type **「繼續」or「continue」** when ready.
+
+---
+
+Do not proceed until the user confirms.
+
 ### Work Items
 - Define core pain point and user problem
 - Identify target users
@@ -96,6 +131,23 @@ Open Questions   :
 ## Phase 2 — Roundtable Discussion
 **Model: 🟡 Sonnet**
 **Trigger: Multi-role coordination needed / After Phase 1**
+
+### ⚠️ Before Starting Phase 2 — Switch Model
+
+Display this message and WAIT for user confirmation before proceeding:
+
+---
+🟡 **Phase 2 requires Sonnet**
+
+Please switch your model now:
+- **Claude.ai Chat** → Click the model name → Select Sonnet
+- **Claude Code** → Type `/model sonnet` in the terminal
+
+Type **「繼續」or「continue」** when ready.
+
+---
+
+Do not proceed until the user confirms.
 
 ### Role Selection
 Ask the user which roles to include (select all that apply):
@@ -186,13 +238,40 @@ Risks              :
 ### During Development
 - Follow any project-specific coding conventions if provided
 - After each task, ask: "Next task, or is there a blocker?"
-- If a blocker is identified, suggest switching to Opus
+- If a blocker is identified, display this and wait for confirmation:
+
+---
+🔴 **Blocker detected — Consider switching to Opus**
+
+- **Claude.ai Chat** → Click the model name → Select Opus
+- **Claude Code** → Type `/model opus` in the terminal
+
+Type **「繼續」or「continue」** when ready, or **「略過」/「skip」** to stay on Sonnet.
+
+---
 
 ---
 
 ## Phase 5 — Next Version Planning
 **Model: 🔴 Opus**
 **Trigger: Current version is complete / Ready to plan next cycle**
+
+### ⚠️ Before Starting Phase 5 — Switch Model
+
+Display this message and WAIT for user confirmation before proceeding:
+
+---
+🔴 **Phase 5 requires Opus**
+
+Please switch your model now:
+- **Claude.ai Chat** → Click the model name → Select Opus
+- **Claude Code** → Type `/model opus` in the terminal
+
+Type **「繼續」or「continue」** when ready.
+
+---
+
+Do not proceed until the user confirms.
 
 Return to Phase 1 with the current product as context. Carry forward:
 - What worked well
@@ -248,10 +327,17 @@ You do not need to run all 5 phases for every task. Match the depth to the scope
 
 ---
 
-## Trigger Keywords (for reference)
+## Command Reference (Quick Copy)
 
-The skill activates when the user mentions:
+```bash
+/pdw               # Show command menu
+/pdw-new           # New product
+/pdw-version       # New version
+/pdw-feature       # New feature (auto-detects phase)
+/pdw-roundtable    # Roundtable discussion
+/pdw-plan          # Execution planning
+/pdw-dev           # System development
+/pdw-bug           # Bug fix or optimization
+```
 
-**Chinese:** 新產品、新版本、大功能、新功能、圓桌、建立計畫、開始開發、規劃、市場評估、系統開發、Bug修復、優化
-
-**English:** new product, new version, major feature, new feature, roundtable, execution plan, start development, planning, market evaluation, system development, bug fix, optimization
+**Language:** Claude replies in the same language you write in — Chinese or English, no setup needed.
