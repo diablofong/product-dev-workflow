@@ -1,167 +1,122 @@
 ---
-name: product-dev-workflow
-description: A branch-per-task product and software development workflow.
-commands:
-  - name: pdw
-    description: "Universal entry — describe what you want, skill routes you"
-  - name: pdw-init
-    description: "One-time — initialize this project (empty or existing)"
-  - name: pdw-talk
-    description: "Roundtable discussion — market analysis, ideation, no dev"
-  - name: pdw-dev
-    description: "Development — new branch / resume / bug / batch auto-detect"
-  - name: pdw-hotfix
-    description: "Emergency fix — auto-pauses your current branch"
-  - name: pdw-done
-    description: "Finish current — complete / abandon / version wrap"
-  - name: pdw-status
-    description: "Show current state — focus / paused / queued"
+name: pdw
+description: Product Dev Workflow — a branch-per-task development assistant. Single slash command /pdw with seven sub-flows. Use /pdw alone to see the menu, or /pdw [sub] [args] for a specific flow. Sub-commands are init, talk, dev, hotfix, done, status. Also accepts natural language ("/pdw I want to build a login page") and auto-routes.
 ---
 
-# Product Development Workflow Skill
+# /pdw — Product Dev Workflow
 
-> **Activation rule:** This skill is activated ONLY when the user explicitly types one of the defined slash commands (`/pdw`, `/pdw-init`, `/pdw-talk`, `/pdw-dev`, `/pdw-hotfix`, `/pdw-done`, `/pdw-status`). Do NOT auto-trigger from conversation keywords, file contents, or any other context.
+A branch-per-task development workflow. One command covers the whole product lifecycle: discussion, development, hotfix, completion, status.
 
-A branch-per-task, developer-friendly workflow for product and software development.
+## 🌐 Language Rule (applies to EVERYTHING below)
 
-**Covers:** New products · New versions · Feature additions · Bug fixes · Hotfixes · Standalone discussions
-**Language:** Claude replies in the same language the user writes in — no setup needed.
+**Always reply in the same language the user writes in.** If the user writes Chinese, reply entirely in Chinese — translate all menus, prompts, confirmations, status messages, branch template section headers, and template placeholder labels. If the user writes English, reply entirely in English.
+
+**Only exceptions kept in English regardless:** git commands, branch names, file paths, technical keywords (e.g. `main`, `HEAD`, `PR`, `CURRENT.md`).
+
+Never mix languages unless the user does. The user's language is detected from their most recent message.
 
 ---
 
-## Design Philosophy
+## Argument Parsing
 
-- **One branch = one piece of work.** Each task gets its own git branch + its own planning document (BRANCH file).
-- **Focus / Paused / Queued.** You work on one branch at a time, but interruptions (hotfix, review feedback) are first-class citizens with automatic pause/resume.
-- **Context hygiene.** Claude only ever sees the current branch's file + `CURRENT.md`. Everything else is archived.
-- **Seven commands total, six for daily use.** Four developer verbs — think (talk) · do (dev) · stop (done) · see (status) — plus a universal router, a dedicated interrupt, and a one-time onboarding command.
+When the user types `/pdw [args...]`, parse the first token:
 
----
-
-## Commands
-
-| Command | Purpose |
+| First token | Action |
 | --- | --- |
-| `/pdw [description]` | Universal entry — describe what you want, skill routes you |
-| `/pdw-init` | **One-time** — initialize this project (empty or existing) |
-| `/pdw-talk [topic]` | Roundtable discussion only — no development |
-| `/pdw-dev [task]` | Development — auto-detects new branch / resume / bug / batch |
-| `/pdw-hotfix [desc]` | Emergency — auto-pauses current branch |
-| `/pdw-done` | Finish current — auto-detects complete / abandon / version wrap |
-| `/pdw-status` | Show current state (focus / paused / queued) |
+| *(empty)* | Show the menu (see "Menu" section below) |
+| `init` | Run the **Init** flow |
+| `talk` (+ topic) | Run the **Roundtable** flow |
+| `dev` (+ task) | Run the **Development** flow |
+| `hotfix` (+ desc) | Run the **Hotfix** flow |
+| `done` (+ `abandon`?) | Run the **Done** flow |
+| `status` | Run the **Status** flow |
+| Natural language description | Auto-route (see "Auto-Route" below) |
+
+### Auto-Route (natural language)
+
+If the first token is not a recognized sub-command, treat the whole argument as a natural-language description and auto-decide:
+
+| Description signals | Route to |
+| --- | --- |
+| No `.claude/records/` exists yet | Suggest `init` first |
+| Discussion / market analysis / ideation / "should we" / no dev needed | `talk` |
+| Urgent / P0 / production down / broken / "now" / "asap" | `hotfix` |
+| Feature / bug / refactor / batch / "build" / "add" / "fix" | `dev` |
+
+Tell the user which sub-flow you picked and why, then proceed. If unsure, ask.
 
 ---
 
-## /pdw — Universal Router
+## Menu (shown when `/pdw` is typed with no args)
 
-Parse the description and route to the right command.
-
-### Pre-check: Is the project initialized?
-
-Before any routing, check if `.claude/records/` exists:
-
-- **Not initialized** → suggest `/pdw-init` first (works for both empty and existing projects). Don't block simple uses like `/pdw-talk` that don't need project state.
-- **Initialized** → proceed with normal routing
-
-### Routing rules
-
-| Description contains | Route to |
-| --- | --- |
-| No dev required, market/ideation/discussion | `/pdw-talk` |
-| Urgent / production down / hotfix / P0 | `/pdw-hotfix` |
-| New feature / bug fix / refactor / batch task | `/pdw-dev` |
-| No description | Show command menu |
-
-### Without description
+Display this menu in the user's language (translate headers, labels, and hints; keep command syntax in English):
 
 ```
-📋 Product Dev Workflow
+📋 Product Dev Workflow — branch-per-task development
 
-  /pdw [description]   Universal — describe what you want
-  /pdw-init            Onboard existing project (one-time)
-  /pdw-talk            Roundtable discussion (no dev)
-  /pdw-dev             Development (branch / resume / bug / batch auto-detect)
-  /pdw-hotfix          Emergency fix (auto-pauses current branch)
-  /pdw-done            Finish current work
-  /pdw-status          Show current state
+  /pdw                     Show this menu
+  /pdw init                Initialize this project (one-time, any project)
+  /pdw talk <topic>        Roundtable discussion (no dev)
+  /pdw dev <task>          Development — new branch / resume / bug / batch
+  /pdw hotfix <desc>       Emergency fix (auto-pauses current branch)
+  /pdw done [abandon]      Finish current work
+  /pdw status              Show current state (focus / paused / queued)
 
-Not sure? Just type: /pdw [describe your need]
+You can also describe your need in plain language:
+  /pdw I want to add a login page
+  /pdw analyze the Taiwan backup software market
+  /pdw payment API is returning 500 in production
+
+I will pick the right sub-flow for you.
 ```
 
 ---
 
-## /pdw-init — Initialize Project (One-Time)
+## Sub-Flow 1: `init` — Initialize Project
 
 **Model: 🟡 Sonnet**
-**Purpose:** Set up this workflow on any project — whether brand new or already in progress. Runs once per project, then you never touch it again.
 
-### When to use
+Sets up `.claude/records/` structure for any project — empty or already in progress. Runs once per project.
 
-- First time using this skill on this project (whether empty or existing)
+### Pre-check
 
-### When NOT to use
+If `.claude/records/` already exists → abort and tell the user to run `/pdw status` instead.
 
-- Project already has `.claude/records/` → run `/pdw-status` instead
-
-### Flow
-
-**Step 1 — Pre-check**
-
-Check for `.claude/records/`:
-- Exists → abort: "Already initialized. Use `/pdw-status` to see current state."
-- Does not exist → proceed.
-
-**Step 2 — Scan project state**
+### Detect Project Type
 
 Run (or ask the user to run):
-
 ```
-git rev-parse --is-inside-work-tree    # is it a git repo?
-git branch --list                       # all local branches
-git branch --show-current               # current branch
-git log --oneline -1 2>/dev/null        # any commits?
-git status --short                      # uncommitted changes?
+git branch --list
+git branch --show-current
+git log --oneline -1 2>/dev/null
+git status --short
 ```
-
-Based on results, pick a mode:
 
 | Condition | Mode |
 | --- | --- |
-| Not a git repo / no commits / no branches beyond main | 🟢 **Fresh Mode** |
-| Has non-main branches OR uncommitted work on a feature branch | 🔵 **Onboard Mode** |
+| No commits / no branches beyond main | 🟢 **Fresh Mode** |
+| Has non-main branches or uncommitted work on a feature branch | 🔵 **Onboard Mode** |
 
-If uncertain (e.g. only `main` with existing commits but no feature branches), ask:
+If ambiguous (only `main` with commits but no other branches), ask the user to choose.
 
-> This project has commits on `main` but no other branches. Treat as:
->   1. Fresh start — no backfill needed
->   2. Onboard — snapshot `main` work into a branch record
-> Pick [1/2].
+### 🟢 Fresh Mode
 
----
-
-### 🟢 Fresh Mode — Empty / New Project
-
-Simple, no questions asked beyond confirmation.
-
-**Generate:**
+Create the structure without further questions:
 
 ```
-.claude/
-└── records/
-    ├── CURRENT.md          ← empty template (no focus)
-    ├── NOTES.md            ← empty template
-    ├── branches/           ← empty directory (with .gitkeep)
-    └── archive/
-        └── branches/       ← empty directory (with .gitkeep)
+.claude/records/
+├── CURRENT.md
+├── NOTES.md
+├── branches/
+└── archive/branches/
 ```
 
-**CURRENT.md (fresh):**
-
-```markdown
+**CURRENT.md template** (translate labels to user's language):
+```
 # Current State
 
 ## Focus
-(none — start with /pdw-dev or /pdw-talk)
+(none)
 
 ## Paused
 (none)
@@ -174,282 +129,84 @@ current : v0.1
 status  : not-started
 ```
 
-**Then offer `.gitignore` update** (see Step 4 below).
+Offer to add `.claude/` to `.gitignore`. Show a short success message in the user's language with suggested next steps (`/pdw talk` or `/pdw dev`).
 
-**Output:**
+### 🔵 Onboard Mode
 
-```
-✅ Project initialized (fresh mode).
+For **each non-main branch**, ask the user (in their language):
 
-Created:
-  .claude/records/CURRENT.md
-  .claude/records/NOTES.md
-  .claude/records/branches/
-  .claude/records/archive/branches/
+1. Branch type: feature / bugfix / hotfix / refactor / unsure
+2. One-line description of what this branch does
+3. Current progress: planning / design done / mid-implementation / nearly done
+4. Next action (one line — this is the resume point)
 
-.gitignore: .claude/ added
+If the user can't remember a branch: offer "skip and mark as needs-review".
 
-Ready to go. Try:
-  /pdw                — Describe what you want to build
-  /pdw-talk           — Discuss ideas first (recommended for new products)
-  /pdw-dev [task]     — Jump straight into development
-```
+**Classify into CURRENT.md:**
+- Current git branch → `Focus`
+- Recent commits (≤7 days) → `Paused`
+- Stale (>7 days no activity) → `Queued` with a "stale?" marker
 
----
+Show the proposed state and confirm before writing files.
 
-### 🔵 Onboard Mode — Existing Project with Branches
+**Branch file (Snapshot Mode):** Generate from the appropriate template (light/medium/heavy by type — see Sub-Flow 3 for templates). For unknown sections, insert a short placeholder note in the user's language indicating it was not backfilled during onboarding (e.g. `*[not backfilled during onboarding]*` or `*[接入時未回溯]*`).
 
-Same goal, more steps — snapshot your current work into the new structure.
+### Rules
 
-**Step 3a — Interactive snapshot per branch**
-
-For **each non-main/master branch**, ask:
-
-```
-🔍 Branch: feature/user-dashboard
-   (current branch, has uncommitted changes)
-
-  Type?
-    1. feature (new functionality)
-    2. bugfix
-    3. hotfix
-    4. refactor
-    5. other / unsure
-
-  [user picks]
-
-  One-line description of what this branch is doing:
-  > [user input]
-
-  Current progress?
-    1. Just started — planning phase
-    2. Design done, starting implementation
-    3. Mid-implementation
-    4. Nearly done
-
-  [user picks]
-
-  What's the next action? (one line — this is your resume point)
-  > [user input]
-```
-
-For branches the user doesn't remember clearly:
-
-> Skip this branch? It'll be listed as "needs-review" and you can fill it in later.
-
-**Step 3b — Classify focus vs paused vs queued**
-
-- **Current git branch** → `focus` (unless user says otherwise)
-- Branches with recent commits (last 7 days) → `paused`
-- Stale branches (>7 days no activity) → `queued` with a "stale?" marker
-
-Show the plan and confirm:
-
-```
-📋 Proposed state:
-
-🎯 Focus
-   feature/user-dashboard (current git branch)
-
-⏸ Paused (1)
-   bugfix/email-validation (active 2 days ago)
-
-🔜 Queued (2)
-   refactor/api-client (stale — 14 days)
-   feature/notifications (stale — 21 days)
-
-Type "ok" to proceed, or tell me what to adjust.
-```
-
-**Step 3c — Generate branch files in Snapshot Mode**
-
-Use appropriate template (light/medium/heavy by type) but with `[待補 — 接入時未回溯]` markers for unknown sections.
-
-**Example snapshot BRANCH file:**
-
-```markdown
-# feature/user-dashboard
-
-**Type:** feature
-**Created:** 2026-04-21 (initialized from existing branch)
-**Status:** in-progress (nearly done)
-**Base:** main
-
-## Background & Goal
-實作使用者儀表板的圖表與資料卡片
-
-## Design
-*[待補 — 接入時未回溯。若需討論再補上。]*
-
-## Task Breakdown
-- [x] Completed work (see git log for details — not backfilled)
-- [ ] Connect weekly trend chart to real API  ← next
-
-## Test Plan
-*[待補]*
-
-## Pause Point
-paused at : (focus — actively working)
-next step : Connect weekly trend chart to real API
-
-## Notes
-- Onboarded via /pdw-init on 2026-04-21
-- Git branch already had 12 commits at onboarding
-```
+- Read-only git queries only. Never run destructive git commands.
+- Idempotent: second run aborts cleanly.
+- Never force retroactive documentation.
 
 ---
 
-### Step 4 — `.gitignore` (both modes)
-
-Check if `.gitignore` contains `.claude/`:
-- Not present → append it (confirm with user)
-- Present → skip
-
-### Step 5 — Final output (both modes)
-
-Fresh mode output: see above.
-
-**Onboard mode output:**
-
-```
-✅ Project onboarded (onboard mode).
-
-Files created:
-  .claude/records/CURRENT.md
-  .claude/records/NOTES.md
-  .claude/records/branches/feature-user-dashboard.md  (🟢 heavy, snapshot)
-  .claude/records/branches/bugfix-email-validation.md (🟡 medium, snapshot)
-  .claude/records/branches/refactor-api-client.md     (🟢 heavy, snapshot)
-
-.gitignore: .claude/ added
-
-Current focus: feature/user-dashboard
-  Next step: Connect weekly trend chart to real API
-
-Suggested next actions:
-  /pdw-status    — Verify everything looks right
-  /pdw-dev       — Continue with your current focus
-```
-
-### Design notes
-
-- **One command, two modes, auto-detected.** You don't need to pick — the skill reads git state and decides.
-- **Never forces retroactive documentation.** Onboard mode's Snapshot Mode fills only what's known and flags the rest as deferred — you backfill during natural development, or never if the branch closes fast.
-- **Respects your git state.** Read-only queries only (`git branch`, `git status`, `git log`). Never runs destructive commands.
-- **Idempotent refusal.** Running `/pdw-init` twice aborts cleanly on the second run — no accidental overwrites.
-
----
-
-## /pdw-talk — Roundtable Discussion
+## Sub-Flow 2: `talk` — Roundtable Discussion
 
 **Model: 🟡 Sonnet**
-**Purpose:** Market analysis, ideation, competitive research, architecture discussion — independent of any branch or development plan.
+**Purpose:** Market analysis, ideation, competitive research, architecture discussion — no development required.
 
-### ⚠️ Before Starting — Switch Model
+### Before Starting
 
----
+Prompt user to switch to Sonnet (in their language):
+- Claude Code → `/model sonnet`
+- Claude.ai → Click model name → Select Sonnet
 
-🟡 **Roundtable requires Sonnet**
-
-- **Claude Code** → `/model sonnet`
-- **Claude.ai Chat** → Click model name → Select Sonnet
-
-Type **"continue"** when ready.
-
----
-
-### Available Roles (Full List — 31 total)
-
-**Fixed — always present:**
+### Fixed Roles (always present)
 
 - 📋 Product Manager — requirements, priorities, alignment
-- 🏗 Technical Architect — technical feasibility, architecture
-- 👤 End User — real user pain points, usability
+- 🏗 Technical Architect — feasibility, architecture
+- 👤 End User — pain points, usability
 
-**C-Suite / Leadership:**
+### Dynamic Roles (31 total — auto-select 2–4 by topic)
 
-- 👔 CEO — company direction, vision, resource priorities
-- 🛠 CTO — technology direction, tech debt, team capability
-- 💼 COO — operations, execution efficiency
-- 💰 CFO — financial risk, budget control
-- 🎨 CPO — product strategy, user value, roadmap
-- 📣 CMO — brand strategy, market entry
+**C-Suite:** 👔 CEO · 🛠 CTO · 💼 COO · 💰 CFO · 🎨 CPO · 📣 CMO
+**Management:** 🏗 Engineering Manager · 📊 Data Lead · 🔐 CISO · 🤝 Partnership Manager
+**Specialists:** 🎨 UX Designer · ⚖️ Legal · 🧪 QA · 📊 Business Analyst · 📊 Data Engineer · 🔬 Data Scientist · 🔐 Security Engineer · 🏛 DevOps/SRE · 💰 Finance · 👤 Customer Success · 🎯 Growth · 🤝 Sales · 🌍 Localization · ♿ Accessibility · 📱 Mobile Engineer · 🤖 AI Engineer · 📣 Marketing
+**External:** 🏢 Enterprise Client · 🔍 Competitor Analyst · 💡 Industry Advisor
 
-**Mid-level Management:**
+### Auto-Selection by Topic
 
-- 🏗 Engineering Manager — engineering resources, scheduling
-- 📊 Data Lead — data strategy, data governance
-- 🔐 CISO — security strategy, compliance
-- 🤝 Partnership Manager — partnerships, ecosystem
-
-**Specialist Roles:**
-
-- 🎨 UX Designer — user experience, flows
-- ⚖️ Legal / Privacy — compliance, data protection
-- 🧪 QA Engineer — quality, testing strategy
-- 📊 Business Analyst — business logic, data, ROI
-- 📊 Data Engineer — data architecture, pipelines
-- 🔬 Data Scientist — analytics, ML feasibility
-- 🔐 Security Engineer — security, vulnerabilities
-- 🏛 DevOps / SRE — deployment, scalability, cost
-- 💰 Finance — cost, pricing, ROI
-- 👤 Customer Success — user retention, feedback
-- 🎯 Growth — growth strategy, funnel
-- 🤝 Sales — sales feasibility, customer feedback
-- 🌍 Localization — multilingual, cultural fit
-- ♿ Accessibility — inclusive design
-- 📱 Mobile Engineer — mobile constraints
-- 🤖 AI Engineer — AI feature feasibility
-- 📣 Marketing — positioning, messaging
-
-**External Perspectives:**
-
-- 🏢 Enterprise Client — enterprise buying considerations
-- 🔍 Competitor Analyst — competitive landscape, differentiation
-- 💡 Industry Advisor — industry trends, regulations
-
-### Auto-Selection Rules
-
-Always include the 3 fixed roles. Then auto-select 2~4 dynamic roles:
-
-| Topic Nature | Auto-invite |
+| Topic | Auto-invite |
 | --- | --- |
-| New product planning | CEO, CPO, CMO, Marketing, Finance |
-| Major version (v2.0+) | CEO, CTO, CPO, Engineering Manager |
-| Technical architecture | CTO, Engineering Manager, DevOps |
+| New product | CEO, CPO, CMO, Marketing, Finance |
+| Major version | CEO, CTO, CPO, Engineering Manager |
+| Architecture | CTO, Engineering Manager, DevOps |
 | Business model | CEO, CFO, CMO, Business Analyst |
-| Data platform | CTO, Data Lead, Data Engineer, Data Scientist |
-| AI features | AI Engineer, CTO, Legal, Security Engineer |
-| Handles user data | CISO, Security Engineer, Legal, Data Engineer |
-| Pre-launch review | QA Engineer, DevOps, Security Engineer, Marketing |
-| Commercialization | CFO, Finance, Sales, Growth, Marketing |
-| B2B product | CEO, Sales, Partnership Manager, Enterprise Client |
+| AI features | AI Engineer, CTO, Legal, Security |
+| User data | CISO, Security, Legal, Data Engineer |
 | Go-to-market | CEO, CMO, CPO, Sales, Marketing |
-| Internationalization | Localization, CMO, Legal |
-| Mobile / App | Mobile Engineer, UX Designer, QA Engineer |
-| Security / compliance | CISO, Security Engineer, Legal |
 | Market research | Competitor Analyst, Industry Advisor, CMO |
+| Mobile / App | Mobile Engineer, UX Designer, QA |
+| B2B | CEO, Sales, Partnership, Enterprise Client |
+| Internationalization | Localization, CMO, Legal |
+| Security / compliance | CISO, Security Engineer, Legal |
 
-### Confirmation Before Starting
+### Confirmation
 
----
+Show proposed attendees and ask for confirmation (in user's language).
 
-📋 **Suggested attendees for: [topic]**
+### Output Format
 
-Fixed:
-- 📋 Product Manager
-- 🏗 Technical Architect
-- 👤 End User
-
-Auto-selected:
-- [Role] — [reason]
-- [Role] — [reason]
-
-Type **"ok"** to proceed, or adjust roles as needed.
-
----
-
-### Auto Output
+All section labels in user's language:
 
 ```
 📄 ROUNDTABLE SUMMARY
@@ -466,450 +223,235 @@ Open Questions :
 ────────────────────────────────
 ```
 
-After output:
-
-> Save to `.claude/records/`? [yes / no]
-> Start a branch for any action item? [yes — which one / no]
+After output, ask:
+- Save summary to `.claude/records/`?
+- Start a development branch for any action item? (if yes, hand off to `dev` flow)
 
 ---
 
-## /pdw-dev — Development
+## Sub-Flow 3: `dev` — Development
 
-**Model: 🟡 Sonnet (switch to 🔴 Opus when stuck, 🔵 Haiku for batch)**
-
-This is the **main workhorse command**. It auto-detects which development mode you need.
+**Model: 🟡 Sonnet** (🔴 Opus when stuck · 🔵 Haiku for batch)
 
 ### Decision Tree
 
 ```
-/pdw-dev [task?]
+/pdw dev [task?]
     ↓
-┌─ Is there a focus branch in CURRENT.md? ─┐
-│                                          │
-├─ YES + no new description   →  RESUME   │
-│   Read the branch file, show next step.  │
-│                                          │
-├─ YES + new description      →  ASK      │
-│   "You have an active branch. Pause and  │
-│    start new, or add this to current?"   │
-│                                          │
-└─ NO                         →  NEW      │
-    Classify the description and open a    │
-    new branch with the right template.    │
+Focus branch in CURRENT.md?
+  YES + no new task   →  RESUME (show next step, continue)
+  YES + new task      →  ASK ("Pause current and start new, or add to current?")
+  NO                  →  NEW BRANCH
 ```
 
-### Branch Classification
+### Branch Classification (for NEW BRANCH)
 
-Parse the description for intent:
-
-| Keywords / Signals | Branch Type | Template | Model |
+| Signals | Type | Template | Model |
 | --- | --- | --- | --- |
-| "rename", "批次", "for each", list of ≥3 items | 🔵 batch | Light | Haiku |
-| "bug", "error", "crash", "壞了", "不會動" | 🟡 bugfix | Medium | Sonnet |
-| "refactor", "重構", cross-module changes | 🟢 refactor | Heavy | Sonnet (Opus if architectural) |
-| "feature", "add", "新增", "實作" | 🟢 feature | Heavy | Sonnet |
-| Unclear | Ask | — | — |
+| rename / batch / list of ≥3 items | 🔵 batch | Light | Haiku |
+| bug / error / crash / broken | 🟡 bugfix | Medium | Sonnet |
+| refactor / cross-module / restructure | 🟢 refactor | Heavy | Sonnet/Opus |
+| feature / add / build / new | 🟢 feature | Heavy | Sonnet |
 
-### Opening a New Branch
+### Confirmation Before Creating
 
+Show (in user's language):
 ```
-🌱 Open a new branch for: [description]
-
-Suggested:
-  branch name : feature/oauth-refresh
-  type        : 🟢 feature (heavy template)
-  base        : main
-  model       : 🟡 Sonnet
-
-Proceed? [yes / adjust / cancel]
+🌱 New branch
+   name     : feature/login-page
+   template : 🟢 heavy
+   model    : 🟡 Sonnet
+   git cmd  : git checkout -b feature/login-page
 ```
 
-On confirmation:
-1. Generate the git command: `git checkout -b feature/oauth-refresh`
-2. Create `.claude/records/branches/feature-oauth-refresh.md` from the appropriate template
-3. Update `CURRENT.md` focus section
-4. Begin planning (for heavy template) or jump to execution (for light/medium)
+Ask to proceed / adjust / cancel.
 
 ### Branch Templates
 
-#### 🔴 Light (hotfix / simple bug)
+When generating a branch file, translate all section headers to the user's language. Keep branch names, `main`, `HEAD` etc. in English.
 
-```markdown
-# [branch-name]
+**🔴 Light (hotfix / simple bug / batch)**
+```
+Type · Created · Base
 
-**Type:** hotfix / simple bug
-**Created:** YYYY-MM-DD HH:MM
-**Base:** main
-
-## Problem
-[What's broken? How to reproduce?]
-
-## Fix
-[The change]
-
-## Verification
-[How to confirm it's fixed]
-
-## Progress
-- [ ] Fix applied
-- [ ] Tested locally
-- [ ] Ready to merge
-
-## Pause Point (if interrupted)
-paused at :
-next step :
+Problem:
+Fix:
+Verification:
+Tasks: [ ] Fix applied · [ ] Tested · [ ] Ready to merge
+Pause Point:
+  next step :
 ```
 
-#### 🟡 Medium (standard bugfix)
+**🟡 Medium (bugfix)**
+```
+Type · Created · Base
 
-```markdown
-# [branch-name]
-
-**Type:** bugfix
-**Created:** YYYY-MM-DD
-**Base:** main
-
-## Symptoms
-[What does the user see?]
-
-## Root Cause
-[Why it's happening]
-
-## Solution
-[The approach]
-
-## Tasks
-- [ ] Implement fix
-- [ ] Add regression test
-- [ ] Update docs if needed
-
-## Test Plan
-[How to verify + regression coverage]
-
-## PR Description (draft)
-[Fill when done]
-
-## Pause Point
-paused at :
-next step :
+Symptoms:
+Root Cause:
+Solution:
+Tasks: [ ] Implement fix · [ ] Regression test · [ ] Docs
+Test Plan:
+PR Description (draft):
+Pause Point:
+  next step :
 ```
 
-#### 🟢 Heavy (feature / refactor)
-
-```markdown
-# [branch-name]
-
-**Type:** feature / refactor
-**Created:** YYYY-MM-DD
-**Base:** main
-
-## Background & Goal
-[Why are we doing this? What's the user value?]
-
-## Design
-### Data / Schema
-### API / Interfaces
-### Flow / Sequence
-### Dependencies
-
-## Task Breakdown
-- [ ] Task 1
-- [ ] Task 2
-- [ ] Task 3
-
-## Test Plan
-- Unit tests:
-- Integration tests:
-- Manual verification:
-
-## Risks & Open Questions
-
-## PR Description (draft)
-[Fill when done]
-
-## Pause Point
-paused at :
-next step :
-
-## Notes
-[Lessons learned during this branch]
+**🟢 Heavy (feature / refactor)**
 ```
+Type · Created · Base
+
+Background & Goal:
+Design:
+  Data / Schema:
+  API / Interfaces:
+  Flow / Sequence:
+Task Breakdown:
+  - [ ] Task 1
+  - [ ] Task 2
+Test Plan:
+Risks & Open Questions:
+PR Description (draft):
+Pause Point:
+  paused at :
+  next step :
+Notes:
+```
+
+### Resuming
+
+When focus branch exists and no new task is given, show (in user's language):
+- Branch name
+- Last pause point + next step
+- Task progress (X of Y done, with next task marked)
+- Ask: continue, or show full branch file?
 
 ### Batch Mode (auto-triggered)
 
 When classification → batch:
+1. Show execution plan, ask for confirmation
+2. Prompt Haiku switch
+3. Execute, report results
+4. Prompt switch back to Sonnet
 
----
+### Blocker
 
-🔵 **This is a batch task — switching to Haiku for lowest cost**
-
-Execution plan:
-[list of items and actions]
-
-- **Claude Code** → `/model haiku`
-- **Claude.ai Chat** → Click model name → Select Haiku
-
-Type **"ok"** to proceed, or adjust the list.
-
----
-
-After execution, report results and prompt:
-
----
-
-🟢 **Batch complete — switch back to Sonnet**
-
-- **Claude Code** → `/model sonnet`
-
----
+If stuck: prompt Opus switch. User can continue on Sonnet if they prefer.
 
 ### During Development
 
-If a blocker is identified:
+If the user mentions a lesson learned, decision rationale, or gotcha → offer to save to `NOTES.md`.
 
 ---
 
-🔴 **Blocker detected — Consider switching to Opus**
+## Sub-Flow 4: `hotfix` — Emergency Interrupt
 
-- **Claude Code** → `/model opus`
-- **Claude.ai Chat** → Click model name → Select Opus
+**Model: 🟡 Sonnet** (🔴 Opus for mysterious bugs)
 
-Type **"continue"** or **"skip"** to stay on Sonnet.
+### Step 1 — Auto-Pause Current Focus
 
----
+If `CURRENT.md` has an active focus:
+1. Save pause point to the branch file:
+   - `paused at:` — auto-detect from recent context if possible
+   - `next step:` — ask the user for one line (in their language) to serve as the resume point
+2. Move focus → paused in `CURRENT.md`.
 
-If the user mentions something worth noting (lesson learned, decision rationale, gotcha):
-
-> Note this to `NOTES.md`? [yes / no]
-
-### Resuming a Paused Branch
-
-When `/pdw-dev` is called with focus already set:
+### Step 2 — Open Hotfix Branch
 
 ```
-🔄 Resuming: feature/oauth-refresh
-
-Last pause point:
-  "Token refresh endpoint designed, about to implement"
-Next step:
-  "Implement POST /auth/refresh"
-
-Current task list:
-  [x] Design refresh flow
-  [ ] Implement POST /auth/refresh  ← next
-  [ ] Add refresh token to DB schema
-  [ ] Write unit tests
-
-Ready to continue? [yes / show full branch file]
+git checkout -b hotfix/[short-desc]
 ```
 
----
+Create branch file using the 🔴 Light template (headers in user's language).
 
-## /pdw-hotfix — Emergency Interrupt
+### Step 3 — Assess and Fix
 
-**Model: 🟢 Sonnet (🔴 Opus for mysterious hotfixes)**
-**Purpose:** Something urgent broke — pause current work, fix, then resume.
-
-### Flow
-
-1. **Auto-pause current focus** (if any):
-
-   ```
-   ⏸ Pausing: feature/oauth-refresh
-
-   Recording pause point…
-     paused at  : [auto-detected from recent context]
-     next step  : [auto-detected or ask user]
-
-   Saved to branches/feature-oauth-refresh.md
-   ```
-
-2. **Confirm pause point** if auto-detection is uncertain:
-
-   > What were you about to do next? (one line, for resume later)
-
-3. **Open hotfix branch** with light template:
-
-   ```
-   🚨 Opening hotfix branch
-
-   branch name : hotfix/payment-500
-   base        : main (not current focus)
-   model       : 🟢 Sonnet
-   ```
-
-4. **Assess severity** and proceed:
-
-   | Severity | Criteria | Approach |
-   | --- | --- | --- |
-   | P0 hotfix | Production down / data loss | Fix immediately, minimal planning |
-   | Hard hotfix | Cannot identify root cause | Switch to Opus |
-   | Standard | Clear cause | Light template flow |
-
-5. **Track the fix** in the hotfix branch file.
+| Severity | Criteria | Approach |
+| --- | --- | --- |
+| P0 | Production down / data loss | Fix immediately, minimal docs |
+| Hard | Can't identify root cause | Prompt Opus switch |
+| Standard | Clear cause | Normal light-template flow |
 
 ### On Completion
 
-When `/pdw-done` is called on a hotfix branch, automatically offer:
-
-> Hotfix merged. Resume **feature/oauth-refresh**? [yes / no / queue instead]
+When `/pdw done` closes this hotfix, offer to resume the paused focus branch. Show the saved `next step`. Ask in user's language.
 
 ---
 
-## /pdw-done — Finish Current Work
+## Sub-Flow 5: `done` — Finish Current Work
 
-Context-aware. Auto-detects what "done" means based on current state.
+Context-aware — auto-detects what "done" means based on current state.
 
 ### Decision Tree
 
 ```
-/pdw-done [argument?]
+/pdw done [argument?]
     ↓
-┌─ Focus is a hotfix branch?
-│    → Close hotfix, offer to resume paused focus
-│
-├─ Focus is a regular branch + all tasks checked?
-│    → Generate PR description, archive branch file, clear focus
-│
-├─ Focus is a regular branch + tasks remaining?
-│    → Ask: "Mark which task done? Or close whole branch?"
-│
-├─ Argument is "abandon"?
-│    → Mark branch abandoned, archive with reason
-│
-├─ No focus + all queued branches done for this version?
-│    → Offer: "Version complete — wrap it up?" → retrospective
-│
-└─ No focus + nothing to close?
-     → Show status, suggest /pdw-dev
+arg = "abandon"?                →  ABANDON
+Focus is a hotfix branch?       →  CLOSE HOTFIX + offer resume
+All tasks on focus checked?     →  CLOSE BRANCH normally
+Tasks remaining?                →  Ask: which task done, or close whole branch?
+No focus + version's branches done? →  Offer VERSION WRAP
+No focus?                       →  Show status, suggest /pdw dev
 ```
 
-### Closing a Branch (Normal Completion)
+### Close Branch (Normal)
+
+Generate PR description from the branch file (in user's language). Confirm before archiving. Move `branches/[name].md` → `archive/branches/[name].md`. Clear focus in `CURRENT.md`. Show remaining queued branches or offer to resume paused.
+
+### Close Hotfix
+
+Same as normal close, then offer to resume the paused focus branch with its saved `next step`.
+
+### Abandon
 
 ```
-✅ Closing branch: feature/oauth-refresh
-
-All tasks complete.
-
-Generated PR description:
-────────────────────────────────
-## Summary
-[auto-generated from branch file]
-
-## Changes
-- [task 1]
-- [task 2]
-
-## Testing
-[from test plan]
-
-## Related
-[any linked issues]
-────────────────────────────────
-
-Type **"ok"** to archive this branch, or **"edit"** to modify PR description.
+/pdw done abandon
 ```
 
-On confirmation:
-1. Move `branches/feature-oauth-refresh.md` → `archive/branches/feature-oauth-refresh.md`
-2. Clear focus in `CURRENT.md`
-3. Show remaining queued branches or offer resume of paused
-
-### Abandoning a Branch
-
-```
-/pdw-done abandon
-```
-
-```
-🗑 Abandon branch: feature/oauth-refresh?
-
-Reason (optional, for archive record):
-> [user input]
-
-Will archive with abandoned status.
-```
+Ask for optional reason. Archive with `status: abandoned`.
 
 ### Version Wrap (auto-offered)
 
-When the last branch of a version completes:
-
----
-
-🎁 **All branches for v1.2 are done. Wrap this version?**
-
-Will trigger retrospective (🔴 Opus recommended) + archive.
-
-Type **"wrap"** to proceed, or **"skip"** to continue.
-
----
+When the last active branch of a version closes, offer wrap. User confirms with `wrap`.
 
 **Retrospective flow (on wrap):**
+1. Prompt Opus switch
+2. Run retrospective with sections (in user's language): Period · Branches completed · Branches abandoned · What went well · What didn't · Key learnings · Tech debt noted · Next version ideas
+3. Archive `CURRENT.md` snapshot to `archive/`, reset to empty template
+4. Ask about planning the next version
 
 ---
 
-🔴 **Retrospective requires Opus**
+## Sub-Flow 6: `status` — Show Current State
 
-- **Claude Code** → `/model opus`
-
-Type **"continue"** when ready.
-
----
+Read `CURRENT.md` and display in the user's language:
 
 ```
-📄 RETROSPECTIVE — v1.2
+📊 Current State — [datetime]
 ────────────────────────────────
-Period              :
-Branches completed  :
-Branches abandoned  :
-
-What went well      :
-What didn't         :
-Key learnings       :
-Tech debt noted     :
-Next version ideas  :
-────────────────────────────────
-```
-
-Archive step:
-- Move `CURRENT.md` state → `archive/v1.2-current.md`
-- Move `archive/branches/*` older than this version → `archive/v1.2/`
-- Reset `CURRENT.md` to empty template
-
-> ➡️ Start planning next version? [yes / no]
-
----
-
-## /pdw-status — Show Current State
-
-Read `CURRENT.md` and display everything in one view:
-
-```
-📊 Current State — 2026-04-21 14:32
-────────────────────────────────────
 
 🎯 Focus
-   feature/oauth-refresh   (started 2d ago)
-   Next: Implement POST /auth/refresh
-   Tasks: 2 of 5 done
+   [branch-name]   (started X days ago)
+   Next: [next step]
+   Tasks: X of Y done
 
-⏸ Paused (1)
-   feature/subscription
-     paused 3d ago
-     next: "實作 Stripe webhook handler"
+⏸ Paused (N)
+   [branch-name]
+     paused X days ago
+     next: "[resume instruction]"
 
-🔜 Queued (2)
-   bugfix/login-session
-   refactor/db-layer
+🔜 Queued (N)
+   [branch-name] — [note]
 
-────────────────────────────────────
-Version: v1.2 in progress (3 branches merged)
+────────────────────────────────
+Version: vX.x · N branches merged this version
 ```
 
-**Context hygiene reminder** (shown occasionally):
+If `.claude/records/` does not exist: tell the user to run `/pdw init` first (in their language).
 
-> Only share `CURRENT.md` + the active branch file with Claude.
-> Never share `archive/`, paused branch files, or `NOTES.md` unless specifically needed.
+Occasionally show a context hygiene reminder:
+- Share with Claude: `CURRENT.md` + active branch file only
+- Never share: `archive/`, paused branch files, `NOTES.md` (unless needed)
 
 ---
 
@@ -917,65 +459,17 @@ Version: v1.2 in progress (3 branches merged)
 
 ```
 project/
-├── src/                              ← your code
-├── .gitignore                        ← add .claude/ here
+├── src/                        ← your code
+├── .gitignore                  ← .claude/ added automatically by /pdw init
 └── .claude/
-    ├── skills/                       ← skill files
+    ├── skills/                 ← skill files
     └── records/
-        ├── CURRENT.md                ← global state (focus/paused/queued)
-        ├── NOTES.md                  ← lessons learned, decisions
-        ├── branches/                 ← ALL active + paused branches
-        │   ├── feature-oauth.md
-        │   ├── feature-subscription.md  (paused)
-        │   └── bugfix-login.md
+        ├── CURRENT.md          ← global state: focus / paused / queued
+        ├── NOTES.md            ← lessons learned, decisions, gotchas
+        ├── branches/           ← one file per active or paused branch
         └── archive/
-            ├── branches/             ← merged / abandoned branches
-            │   └── feature-old.md
-            ├── v1.0-current.md       ← version snapshots
-            └── v1.0/                 ← branches belonging to that version
-```
-
-Add to `.gitignore`:
-
-```
-.claude/
-```
-
-### Context Hygiene Rules
-
-- ✅ **Always share:** `CURRENT.md` + the current focus branch file
-- 🔸 **Share when needed:** `NOTES.md` (for context on past decisions)
-- ❌ **Never share:** `archive/`, paused branch files
-- 💡 **Reference by path** when possible, don't paste entire files
-
----
-
-## CURRENT.md Template
-
-```markdown
-# Current State
-
-## Focus
-→ [branch-name]
-  type    : feature / bugfix / hotfix / refactor
-  started : YYYY-MM-DD
-  file    : branches/[branch-file].md
-  next    : [one-line next action]
-
-## Paused
-⏸ [branch-name]
-  paused  : YYYY-MM-DD
-  reason  : [why paused, e.g. "hotfix interrupt"]
-  file    : branches/[branch-file].md
-  next    : [one-line pickup instruction]
-
-## Queued
-- [branch-name] — [brief note]
-
-## Version
-current : v1.2
-status  : in-progress
-merged  : [list of branches merged this version]
+            ├── branches/       ← merged / abandoned branches
+            └── vX.X-*.md       ← version snapshots
 ```
 
 ---
@@ -984,53 +478,29 @@ merged  : [list of branches merged this version]
 
 ```
 🔴 Opus    → New product planning, major version, retrospective, hard bugs, architecture
-🟡 Sonnet  → Roundtable, feature/bugfix/refactor development (main workhorse)
-🔵 Haiku   → Batch tasks (auto-triggered, developer doesn't need to pick)
+🟡 Sonnet  → Roundtable, planning, development (main workhorse)
+🔵 Haiku   → Batch tasks (auto-triggered via dev flow)
 ```
-
-**Rule of thumb:**
-
-> Use Opus for decisions that affect the whole product.
-> Use Sonnet for everything else.
-> Batch tasks auto-route to Haiku — you don't need to think about it.
 
 ### How to Switch Models
 
-**Claude.ai Chat**
-
-> Click the model name at the top → Select the model
-
-**Claude Code**
-
-```
-/model opus      # Switch to Opus
-/model sonnet    # Switch to Sonnet
-/model haiku     # Switch to Haiku
-/model opusplan  # Opus for planning, auto-switch to Sonnet
-```
+- **Claude Code:** `/model opus` · `/model sonnet` · `/model haiku`
+- **Claude.ai:** Click model name at top → select model
 
 ---
 
-## The Four Verbs
-
-A mnemonic for daily use:
+## Quick Examples
 
 ```
-想 (think)  →  /pdw-talk       Discuss without coding
-做 (do)     →  /pdw-dev        Write code in a branch
-停 (stop)   →  /pdw-done       Finish what you're on
-看 (see)    →  /pdw-status     Where am I?
+/pdw                                 → Show menu
+/pdw init                            → Initialize this project
+/pdw talk analyze Taiwan backup SaaS → Roundtable discussion
+/pdw dev build a login page         → Open feature branch + planning
+/pdw hotfix payment API returns 500 → Auto-pause + open hotfix branch
+/pdw done                            → Close current branch
+/pdw status                          → Where am I?
 
-+ /pdw-hotfix  for emergencies (auto-pauses current)
-+ /pdw         when you don't know which to pick
-+ /pdw-init    one-time, first use of this skill on any project (empty or existing)
+/pdw I want to add OAuth login       → Auto-routes to dev
+/pdw production is on fire           → Auto-routes to hotfix
+/pdw should we enter the EU market   → Auto-routes to talk
 ```
-
----
-
-## Flexible Usage
-
-- You don't need to use every command. `/pdw-dev` alone covers most days.
-- Branches are strongly recommended but not mandatory — for tiny throwaway edits you can skip the branch file.
-- Heavy template is strongly recommended for any work expected to take >1 day or >100 lines of code.
-- When in doubt: type `/pdw [describe what you want]` and the skill will guide you.
