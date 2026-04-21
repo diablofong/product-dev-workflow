@@ -1,9 +1,26 @@
 ---
 name: product-dev-workflow
-description: A branch-per-task product and software development workflow. Activated ONLY via slash commands (/pdw, /pdw-init, /pdw-talk, /pdw-dev, /pdw-hotfix, /pdw-done, /pdw-status). Do NOT auto-trigger from conversation keywords, file contents, or any other context. Only load this skill when the user explicitly types one of the above slash commands.
+description: A branch-per-task product and software development workflow.
+commands:
+  - name: pdw
+    description: "Universal entry — describe what you want, skill routes you"
+  - name: pdw-init
+    description: "One-time — initialize this project (empty or existing)"
+  - name: pdw-talk
+    description: "Roundtable discussion — market analysis, ideation, no dev"
+  - name: pdw-dev
+    description: "Development — new branch / resume / bug / batch auto-detect"
+  - name: pdw-hotfix
+    description: "Emergency fix — auto-pauses your current branch"
+  - name: pdw-done
+    description: "Finish current — complete / abandon / version wrap"
+  - name: pdw-status
+    description: "Show current state — focus / paused / queued"
 ---
 
 # Product Development Workflow Skill
+
+> **Activation rule:** This skill is activated ONLY when the user explicitly types one of the defined slash commands (`/pdw`, `/pdw-init`, `/pdw-talk`, `/pdw-dev`, `/pdw-hotfix`, `/pdw-done`, `/pdw-status`). Do NOT auto-trigger from conversation keywords, file contents, or any other context.
 
 A branch-per-task, developer-friendly workflow for product and software development.
 
