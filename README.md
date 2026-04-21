@@ -1,80 +1,115 @@
 # product-dev-workflow
 
-> A streamlined Claude Skill for the full product & software development lifecycle.
+> A branch-per-task Claude Skill for the full product & software development lifecycle.
 
 [繁體中文](#繁體中文) | **English**
 
 ---
 
+## Demo
+
+<!-- DEMO_START -->
+> 🎬 *Demo video coming soon — see [demo script](./demo-script.md) to try it yourself.*
+<!-- DEMO_END -->
+
+---
+
 ## What is this?
 
-A Claude Skill (`SKILL.md`) that guides Claude through a structured, developer-friendly product development workflow — from market evaluation to system development.
+A Claude Skill (`SKILL.md`) that guides you through a structured, **branch-per-task** development workflow — from market discussion all the way to shipping.
+
+**One branch = one piece of work.** Every task gets its own git branch and its own planning document. The skill tracks your focus, pauses cleanly when a hotfix hits, and resumes exactly where you left off.
 
 Designed for: indie developers, product managers, and small teams who use Claude as a development partner.
 
+---
+
 ## Features
 
-- 🎯 Simple commands — just 7 to remember
-- 🌐 Bilingual — replies in Chinese or English automatically
-- 🤖 Auto-detects task type — just describe what you want
-- 👥 Dynamic roundtable — 31 roles, auto-selected by topic
-- 🔀 Model switch prompts — Opus / Sonnet / Haiku at the right moment
-- 📝 Built-in records management — CURRENT / DONE / PLAN / archive
-- 🧹 Context hygiene — keeps Claude sessions clean and efficient
+- 🌿 **Branch-per-task** — one branch, one planning doc, one clear scope
+- ⏸ **Auto pause / resume** — hotfix interrupts your focus; skill saves your resume point automatically
+- 🎯 **7 commands, 4 daily verbs** — think · do · stop · see
+- 🌐 **Bilingual** — replies in Chinese or English automatically
+- 🤖 **Auto-detects task type** — feature / bugfix / hotfix / batch / refactor
+- 👥 **Dynamic roundtable** — 31 roles, auto-selected by topic
+- 🔀 **Model switch prompts** — Opus / Sonnet / Haiku at the right moment
+- 🧹 **Context hygiene** — Claude only ever sees what it needs
+
+---
 
 ## Commands
 
 | Command | When to Use |
-|---|---|
-| `/pdw [description]` | Just describe what you want — Skill figures out the rest |
-| `/pdw` | Not sure where to start — show the menu |
-| `/pdw roundtable [topic]` | Standalone discussion, market analysis, no dev required |
-| `/pdw dev [task]` | Start a development task |
-| `/pdw bug [description]` | Fix a bug or hotfix |
-| `/pdw batch [description]` | Batch repetitive tasks — rename, update, annotate, replace |
-| `/pdw done [task]` | Mark task complete + update records |
-| `/pdw status` | Show current progress |
-| `/pdw wrap` | Archive current version + retrospective |
+| --- | --- |
+| `/pdw [description]` | Not sure where to start — describe what you want |
+| `/pdw-init` | **One-time** — initialize this project (empty or existing) |
+| `/pdw-talk [topic]` | Discuss, plan, or analyze — no development needed |
+| `/pdw-dev [task]` | Write code — auto-detects new branch / resume / bug / batch |
+| `/pdw-hotfix [desc]` | Emergency fix — auto-pauses your current branch |
+| `/pdw-done` | Finish current work — complete / abandon / version wrap |
+| `/pdw-status` | Where am I? Show focus / paused / queued |
+
+### The Four Daily Verbs
+
+```
+think  →  /pdw-talk      Discuss without coding
+do     →  /pdw-dev       Write code in a branch
+stop   →  /pdw-done      Finish what you're on
+see    →  /pdw-status    Where am I?
+
++ /pdw-hotfix   for emergencies (auto-pauses current branch)
++ /pdw          when you don't know which verb to use
++ /pdw-init     one-time setup, any project
+```
+
+---
 
 ## Workflow Overview
 
 ```
-/pdw [need]  →  Auto-detect
-                    ↓
-             New product/version  →  Phase 1  🔴 Opus
-             Needs discussion?    →  Roundtable  🟡 Sonnet
-             Ready to plan        →  Phase 3  🟢 Sonnet
-             Ready to build       →  Phase 4  🟢 Sonnet
-             Version complete     →  /pdw wrap  🔴 Opus
+/pdw-init
+    ↓
+  🟢 Fresh project      → empty structure, ready to go
+  🔵 Existing project   → interactive snapshot of all branches
 
-/pdw roundtable  →  Standalone discussion (independent of dev)
-/pdw dev         →  Development task
-/pdw bug         →  Bug fix / hotfix
-/pdw batch       →  Batch repetitive tasks (Haiku handled automatically)
+      ↓
+
+/pdw-talk [topic]        → Roundtable discussion (Sonnet)
+/pdw-dev  [task]         → Open branch + planning doc
+    ↓
+    feature  →  🟢 heavy template  (design + tasks + PR draft)
+    bugfix   →  🟡 medium template (symptoms + root cause + tests)
+    hotfix   →  🔴 light template  (problem + fix + verify)
+    batch    →  🔵 auto Haiku      (bulk rename / annotate / replace)
+
+/pdw-hotfix              → Auto-pause focus, fix, then resume
+/pdw-done                → Close branch, generate PR description, archive
+/pdw-status              → Focus / Paused / Queued at a glance
 ```
+
+---
 
 ## Model Guide
 
-| Model | When to Use |
-|---|---|
+| Model | When |
+| --- | --- |
 | 🔴 Opus | New product, major version, retrospective, hard bugs, architecture |
-| 🟡 Sonnet | Roundtable, execution planning, development (main workhorse) |
-| 🔵 Haiku | `/pdw batch` — handled automatically, no need to know the model name |
+| 🟡 Sonnet | Roundtable, planning, development (main workhorse) |
+| 🔵 Haiku | `/pdw-dev` batch tasks — handled automatically |
 
-The skill prompts you to switch at the right moment and waits for confirmation.
+---
 
-## How to Switch Models
+## Branch File Templates
 
-**Claude.ai Chat**
-> Click the model name at the top → Select the model
+Each branch gets its own planning document in `.claude/records/branches/`:
 
-**Claude Code**
-```bash
-/model opus      # Switch to Opus
-/model sonnet    # Switch to Sonnet
-/model haiku     # Switch to Haiku
-/model opusplan  # Opus for planning, auto-switch to Sonnet
-```
+| Type | Template Weight | Contents |
+| --- | --- | --- |
+| `hotfix/*` | 🔴 Light | Problem / Fix / Verification |
+| `bugfix/*` | 🟡 Medium | Symptoms / Root cause / Solution / Tests |
+| `feature/*` `refactor/*` | 🟢 Heavy | Background / Design / Tasks / Test plan / PR draft |
+
+---
 
 ## Records Structure
 
@@ -82,63 +117,81 @@ All records stored locally — never committed to git.
 
 ```
 project/
-├── src/                  ← your code
-├── .gitignore            ← add .claude/ here
+├── src/                        ← your code
+├── .gitignore                  ← .claude/ is added automatically by /pdw-init
 └── .claude/
-    ├── skills/           ← skill files
+    ├── skills/                 ← skill files
     └── records/
-        ├── CURRENT.md    ← active tasks (only this in context)
-        ├── DONE.md       ← completed (never share with Claude)
-        ├── PLAN.md       ← full plan (reference only)
-        ├── NOTES.md      ← lessons learned, gotchas
-        └── archive/      ← old versions (never in context)
+        ├── CURRENT.md          ← global state: focus / paused / queued
+        ├── NOTES.md            ← lessons learned, decisions, gotchas
+        ├── branches/           ← one file per active or paused branch
+        │   ├── feature-login.md
+        │   └── hotfix-submit-btn.md
+        └── archive/
+            ├── branches/       ← merged / abandoned branches
+            └── v1.0-*.md       ← version snapshots
 ```
 
-Add to `.gitignore`:
-```
-.claude/
-```
+**Context hygiene rules:**
+
+- ✅ Share with Claude: `CURRENT.md` + the current branch file
+- ❌ Never share: `archive/`, paused branch files, `NOTES.md` (unless needed)
+
+---
 
 ## How to Install
 
 **Claude.ai Chat**
+
 1. Download the `product-dev-workflow` folder
 2. Zip it (folder must be at the root of the ZIP)
 3. Go to Settings → Customize → Skills → Upload ZIP
 4. Enable Code Execution in Settings → Capabilities
 
 **Claude Code (Windows)**
+
 ```
 Copy folder to:
 C:\Users\<username>\.claude\skills\product-dev-workflow\
 ```
 
 **Claude Code (Mac / Linux)**
-```bash
+
+```
 cp -r product-dev-workflow ~/.claude/skills/
 ```
+
+---
 
 ## How to Use
 
 ```bash
+# First time on any project
+/pdw-init
+
 # Not sure where to start
 /pdw
 
-# Describe what you want — Skill figures out the rest
-/pdw I want to add a paid subscription feature
+# Discuss an idea before building
+/pdw-talk analyze the login UX options for mobile users
 
-# Standalone discussion
-/pdw roundtable analyze the backup software market in Taiwan
+# Start a new feature
+/pdw-dev build a login page with email, password and remember-me
 
-# Daily development
-/pdw dev          # work on next task
-/pdw bug          # fix a bug
-/pdw done         # mark complete
-/pdw status       # check progress
-/pdw wrap         # archive this version
+# Emergency fix (auto-pauses your current work)
+/pdw-hotfix login button not submitting on mobile Safari
+
+# Mark current work done
+/pdw-done
+
+# Check where you are
+/pdw-status
+
+# Batch task
+/pdw-dev rename all authUser references to currentUser across the codebase
 ```
 
-Claude replies in whichever language you write in — no setup needed.
+---
 
 ## License
 
@@ -150,138 +203,88 @@ Claude replies in whichever language you write in — no setup needed.
 
 ### 這是什麼？
 
-一個 Claude Skill（`SKILL.md`），用簡單的斜線指令引導你完成完整的產品開發流程。
+一個 Claude Skill（`SKILL.md`），以「一個分支對應一個工作項目」的方式，引導你完成完整的產品開發流程。
+
+每個任務有自己的 git branch 和規劃文件。Skill 追蹤你目前的工作焦點，遇到 hotfix 時自動暫停並記錄接回點，修完後自動提示繼續。
 
 適合：獨立開發者、產品經理、小型團隊。
 
 ### 功能特色
 
-- 🎯 只需記住 7 個指令
-- 🌐 自動雙語 — 你用什麼語言，Claude 就回什麼語言
-- 🤖 自動判斷任務類型 — 描述需求，Skill 幫你決定
-- 👥 動態圓桌 — 31 個角色，根據主題自動選出與會者
-- 🔀 Model 切換提示 — 對的時機提示 Opus / Sonnet / Haiku
-- 📝 內建紀錄管理 — CURRENT / DONE / PLAN / archive
-- 🧹 Context 整理 — 保持 Claude 對話乾淨有效率
+- 🌿 **Branch-per-task** — 一個分支一份規劃文件，範圍清楚
+- ⏸ **自動暫停 / 接回** — hotfix 打斷主線，自動儲存接回點
+- 🎯 **7 個指令，4 個日常動詞** — 想 · 做 · 停 · 看
+- 🌐 **自動雙語** — 你用什麼語言，Claude 就回什麼語言
+- 🤖 **自動判斷任務類型** — feature / bugfix / hotfix / batch / refactor
+- 👥 **動態圓桌** — 31 個角色，根據主題自動選出與會者
+- 🔀 **Model 切換提示** — 對的時機提示 Opus / Sonnet / Haiku
+- 🧹 **Context 整理** — Claude 永遠只看到它需要看的東西
 
 ### 指令列表
 
 | 指令 | 使用時機 |
-|---|---|
-| `/pdw [描述]` | 描述你的需求，Skill 自動判斷怎麼處理 |
-| `/pdw` | 不知道從哪開始，顯示選單 |
-| `/pdw roundtable [主題]` | 獨立討論、市場分析，不需要開發 |
-| `/pdw dev [任務]` | 開始開發任務 |
-| `/pdw bug [描述]` | 修 bug 或緊急修復 |
-| `/pdw batch [描述]` | 批次重複性任務 — 改名、更新、加註解、替換 |
-| `/pdw done [任務]` | 標記完成 + 更新紀錄 |
-| `/pdw status` | 查看當前進度 |
-| `/pdw wrap` | 封存當前版本 + 回顧 |
+| --- | --- |
+| `/pdw [描述]` | 不確定從哪開始，描述需求 |
+| `/pdw-init` | **一次性** — 初始化專案（空的或既有的都適用） |
+| `/pdw-talk [主題]` | 討論、規劃、分析，不需要開發 |
+| `/pdw-dev [任務]` | 寫程式 — 自動判斷新 branch / 繼續 / bug / 批次 |
+| `/pdw-hotfix [描述]` | 緊急修復 — 自動暫停當前 branch |
+| `/pdw-done` | 結束當前工作 — 完成 / 放棄 / 版本封存 |
+| `/pdw-status` | 我在哪？顯示 focus / paused / queued |
 
-### 流程概覽
+### 四個日常動詞
 
 ```
-/pdw [需求]  →  自動判斷
-                    ↓
-             新產品/版本  →  Phase 1  🔴 Opus
-             需要討論？   →  圓桌     🟡 Sonnet
-             準備規劃     →  Phase 3  🟢 Sonnet
-             準備開發     →  Phase 4  🟢 Sonnet
-             版本完成     →  /pdw wrap  🔴 Opus
+想  →  /pdw-talk      討論，不動程式碼
+做  →  /pdw-dev       在 branch 裡寫程式
+停  →  /pdw-done      結束當前工作
+看  →  /pdw-status    我在哪？
 
-/pdw roundtable  →  獨立圓桌討論（不綁開發）
-/pdw dev         →  開發任務
-/pdw bug         →  修 bug / 緊急修復
-/pdw batch       →  批次重複性任務（自動使用最省的 Model）
-```
-
-### Model 建議
-
-| Model | 使用時機 |
-|---|---|
-| 🔴 Opus | 新產品、大版本、回顧、困難 bug、架構決策 |
-| 🟡 Sonnet | 圓桌、執行計畫、開發（主力）|
-| 🔵 Haiku | `/pdw batch` 自動使用，開發者不需要知道 Model 名稱 |
-
-### 如何切換 Model
-
-**Claude.ai Chat**
-> 點對話框上方的 Model 名稱 → 選擇對應 Model
-
-**Claude Code**
-```bash
-/model opus      # 切換到 Opus
-/model sonnet    # 切換到 Sonnet
-/model haiku     # 切換到 Haiku
-/model opusplan  # Opus 規劃 + 自動切回 Sonnet
-```
-
-### 紀錄檔案結構
-
-所有紀錄存在本地，不上 git。
-
-```
-專案資料夾/
-├── src/                  ← 你的程式碼
-├── .gitignore            ← 加入 .claude/
-└── .claude/
-    ├── skills/           ← Skill 檔案
-    └── records/
-        ├── CURRENT.md    ← 當前任務（唯一需要給 Claude 的）
-        ├── DONE.md       ← 已完成（不要給 Claude）
-        ├── PLAN.md       ← 完整計畫（參考用）
-        ├── NOTES.md      ← 踩坑紀錄、決策說明
-        └── archive/      ← 封存舊版本（永遠不帶入 context）
-```
-
-`.gitignore` 加上：
-```
-.claude/
++ /pdw-hotfix   緊急修復（自動暫停主線）
++ /pdw          不知道用哪個就用這個
++ /pdw-init     一次性初始化，任何專案都適用
 ```
 
 ### 安裝方式
 
 **Claude.ai Chat**
+
 1. 下載 `product-dev-workflow` 資料夾
 2. 壓縮成 ZIP（資料夾要在 ZIP 根目錄）
 3. 前往 Settings → Customize → Skills → 上傳 ZIP
 4. 確認 Settings → Capabilities → Code Execution 已開啟
 
 **Claude Code（Windows）**
+
 ```
 複製資料夾到：
 C:\Users\<你的使用者名稱>\.claude\skills\product-dev-workflow\
 ```
 
 **Claude Code（Mac / Linux）**
-```bash
+
+```
 cp -r product-dev-workflow ~/.claude/skills/
 ```
 
 ### 使用方式
 
 ```bash
-# 不知道從哪開始
-/pdw
+# 任何專案的第一步
+/pdw-init
 
-# 描述需求，Skill 自動判斷
-/pdw 我想加一個付費訂閱功能
+# 開始一個新功能
+/pdw-dev 建立登入頁面，包含 email、密碼欄位與記住我
 
-# 獨立圓桌討論
-/pdw roundtable 分析台灣備份軟體市場
+# 緊急修復（自動暫停你正在做的事）
+/pdw-hotfix 登入按鈕在 mobile Safari 上無法送出
 
-# 日常開發
-/pdw dev          # 開始開發下一個任務
-/pdw bug          # 修 bug
-/pdw done         # 標記完成
-/pdw status       # 查看進度
-/pdw wrap         # 封存這個版本
+# 標記完成
+/pdw-done
 
-# 批次重複性任務
-/pdw batch 把這些函式名稱改成 camelCase：[清單]
+# 查看進度
+/pdw-status
 ```
-
-Claude 會依照你輸入的語言自動回應，不需要額外設定。
 
 ### 授權
 
