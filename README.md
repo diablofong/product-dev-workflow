@@ -6,11 +6,10 @@
 
 ---
 
-## Demo
-
 <!-- DEMO_START -->
-> 🎬 *Demo video coming soon — see [demo-script.md](./demo-script.md) to try it yourself.*
+> 🎬 *Demo video* 
 <!-- DEMO_END -->
+https://github.com/user-attachments/assets/f4402f45-f5a2-49e1-bf81-acea583b52cd
 
 ---
 
